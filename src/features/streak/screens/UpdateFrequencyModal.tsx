@@ -101,7 +101,7 @@ export function UpdateFrequencyModal({
               disabled={saving}
             >
               {saving ? (
-                <ActivityIndicator color="#FFFFFF" />
+                <ActivityIndicator color={colors.onPrimary} />
               ) : (
                 <Text style={styles.primaryText}>Salvar</Text>
               )}
@@ -116,7 +116,7 @@ export function UpdateFrequencyModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(8,28,52,0.42)',
+    backgroundColor: colors.scrim,
     justifyContent: 'flex-end',
   },
   sheet: {

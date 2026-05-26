@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceContainerLowest,
     borderRadius: 12,
     padding: 24,
-    shadowColor: '#081C34',
+    shadowColor: colors.onSurface,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,

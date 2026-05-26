@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   dayCircleFilled: {
     backgroundColor: colors.primary,
-    shadowColor: '#081C34',
+    shadowColor: colors.onSurface,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
