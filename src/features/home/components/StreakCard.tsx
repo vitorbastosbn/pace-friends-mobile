@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { colors } from '../../../theme/colors';
 
 interface StreakCardProps {
   currentStreak: number;
@@ -33,16 +34,16 @@ const styles = StyleSheet.create({
     minHeight: 140,
     padding: 16,
     borderRadius: 18,
-    backgroundColor: '#FFF4E5',
+    backgroundColor: colors.tertiaryFixed,
     borderWidth: 1,
-    borderColor: '#FFD8A8',
+    borderColor: colors.tertiaryFixed,
     gap: 6,
   },
   pressed: {
     opacity: 0.86,
   },
   label: {
-    color: '#C05621',
+    color: colors.tertiary,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.8,
@@ -53,19 +54,19 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   value: {
-    color: '#9A3412',
+    color: colors.tertiary,
     fontSize: 40,
     lineHeight: 46,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
   },
   unit: {
-    color: '#C05621',
+    color: colors.tertiary,
     fontSize: 15,
     fontWeight: '600',
   },
   message: {
-    color: '#9A3412',
+    color: colors.tertiary,
     fontSize: 13,
     fontWeight: '500',
   },

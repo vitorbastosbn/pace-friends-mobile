@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { colors } from '../../../theme/colors';
 
 interface HomeShortcutsProps {
   onIndividualChallenge: () => void;
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   label: {
-    color: '#64748B',
+    color: colors.onSurfaceVariant,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.7,
@@ -70,27 +71,27 @@ const styles = StyleSheet.create({
     padding: 15,
     minHeight: 108,
     borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: '#E6ECF5',
+    borderColor: colors.outlineVariant,
     gap: 5,
   },
   shortcutPressed: {
-    backgroundColor: '#EDF3FF',
+    backgroundColor: colors.surfaceContainerLow,
   },
   title: {
-    color: '#172554',
+    color: colors.onSurface,
     fontSize: 14,
     lineHeight: 19,
     fontWeight: '700',
   },
   description: {
-    color: '#64748B',
+    color: colors.onSurfaceVariant,
     fontSize: 12,
   },
   arrow: {
     marginTop: 'auto',
-    color: '#0D47A1',
+    color: colors.primary,
     fontSize: 12,
     fontWeight: '700',
   },

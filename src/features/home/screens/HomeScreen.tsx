@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { colors } from '../../../theme/colors';
 import { HomeShortcuts } from '../components/HomeShortcuts';
 import { StreakCard } from '../components/StreakCard';
 import { TrainingPathCard } from '../components/TrainingPathCard';
@@ -115,7 +116,7 @@ function HomeSkeleton() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F6F8FC',
+    backgroundColor: colors.background,
   },
   content: {
     paddingHorizontal: 20,
@@ -128,19 +129,19 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   eyebrow: {
-    color: '#64748B',
+    color: colors.onSurfaceVariant,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 1.2,
   },
   greeting: {
-    color: '#102A56',
+    color: colors.onSurface,
     fontSize: 30,
     fontWeight: '800',
     letterSpacing: -0.4,
   },
   subtitle: {
-    color: '#526273',
+    color: colors.onSurfaceVariant,
     fontSize: 15,
   },
   summaryRow: {
@@ -149,20 +150,20 @@ const styles = StyleSheet.create({
   },
   stateContainer: {
     flex: 1,
-    backgroundColor: '#F6F8FC',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 30,
     gap: 13,
   },
   errorTitle: {
-    color: '#102A56',
+    color: colors.onSurface,
     fontSize: 20,
     fontWeight: '700',
     textAlign: 'center',
   },
   errorText: {
-    color: '#526273',
+    color: colors.onSurfaceVariant,
     fontSize: 14,
     lineHeight: 21,
     textAlign: 'center',
@@ -172,19 +173,19 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 24,
     paddingVertical: 13,
-    backgroundColor: '#0D47A1',
+    backgroundColor: colors.primary,
   },
   retryPressed: {
-    backgroundColor: '#083879',
+    backgroundColor: colors.primaryDark,
   },
   retryText: {
-    color: '#FFFFFF',
+    color: colors.onPrimary,
     fontSize: 15,
     fontWeight: '700',
   },
   skeleton: {
     borderRadius: 14,
-    backgroundColor: '#E4EAF3',
+    backgroundColor: colors.outlineVariant,
   },
   skeletonHeading: {
     height: 34,

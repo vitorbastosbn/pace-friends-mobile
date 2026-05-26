@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { colors } from '../../../theme/colors';
 
 interface XpLevelCardProps {
   totalXp: number;
@@ -31,32 +32,32 @@ const styles = StyleSheet.create({
     minHeight: 140,
     padding: 16,
     borderRadius: 18,
-    backgroundColor: '#E8F1FF',
+    backgroundColor: colors.primaryFixed,
     borderWidth: 1,
-    borderColor: '#C7D9FF',
+    borderColor: colors.primaryFixedDim,
     gap: 5,
   },
   label: {
-    color: '#3159B8',
+    color: colors.primary,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.8,
   },
   level: {
-    color: '#123B8D',
+    color: colors.primaryDark,
     fontSize: 38,
     lineHeight: 42,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
   },
   xp: {
-    color: '#123B8D',
+    color: colors.primaryDark,
     fontSize: 15,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
   next: {
-    color: '#526A98',
+    color: colors.onSurfaceVariant,
     fontSize: 12,
     fontWeight: '500',
   },

@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { colors } from '../../../theme/colors';
 
 interface WeeklyFrequencyCardProps {
   daysTrained: number;
@@ -33,11 +34,11 @@ export function WeeklyFrequencyCard({ daysTrained, goal }: WeeklyFrequencyCardPr
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surfaceContainerLowest,
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E6ECF5',
+    borderColor: colors.outlineVariant,
     gap: 14,
   },
   headingRow: {
@@ -47,19 +48,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   label: {
-    color: '#64748B',
+    color: colors.onSurfaceVariant,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.7,
     marginBottom: 5,
   },
   title: {
-    color: '#172554',
+    color: colors.onSurface,
     fontSize: 16,
     fontWeight: '700',
   },
   counter: {
-    color: '#0D47A1',
+    color: colors.primary,
     fontSize: 16,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
@@ -67,16 +68,16 @@ const styles = StyleSheet.create({
   track: {
     height: 10,
     borderRadius: 6,
-    backgroundColor: '#E8EEF9',
+    backgroundColor: colors.surfaceContainer,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    backgroundColor: '#16A766',
+    backgroundColor: colors.secondary,
     borderRadius: 6,
   },
   hint: {
-    color: '#526273',
+    color: colors.onSurfaceVariant,
     fontSize: 13,
   },
 });

@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { HomeSummary } from '../types/home.types';
+import { colors } from '../../../theme/colors';
 
 interface TrainingPathCardProps {
   trainingPath: HomeSummary['trainingPath'];
@@ -51,16 +52,16 @@ export function TrainingPathCard({ trainingPath, onPress }: TrainingPathCardProp
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#EEFBF5',
+    backgroundColor: colors.secondaryContainerLight,
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#CBEEDD',
+    borderColor: colors.secondaryContainerLight,
     gap: 13,
   },
   emptyCard: {
-    backgroundColor: '#F3F6FA',
-    borderColor: '#DCE5F0',
+    backgroundColor: colors.surfaceContainer,
+    borderColor: colors.outlineVariant,
   },
   pressed: {
     opacity: 0.86,
@@ -71,19 +72,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    color: '#526273',
+    color: colors.onSurfaceVariant,
     fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.7,
     marginBottom: 5,
   },
   title: {
-    color: '#123B33',
+    color: colors.onSurface,
     fontSize: 18,
     fontWeight: '700',
   },
   percent: {
-    color: '#087443',
+    color: colors.secondary,
     fontSize: 20,
     fontWeight: '800',
     fontVariant: ['tabular-nums'],
@@ -91,16 +92,16 @@ const styles = StyleSheet.create({
   track: {
     height: 10,
     borderRadius: 6,
-    backgroundColor: '#D4EFE1',
+    backgroundColor: colors.secondaryContainerLight,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
     borderRadius: 6,
-    backgroundColor: '#16A766',
+    backgroundColor: colors.secondary,
   },
   description: {
-    color: '#526273',
+    color: colors.onSurfaceVariant,
     fontSize: 13,
     lineHeight: 18,
   },
