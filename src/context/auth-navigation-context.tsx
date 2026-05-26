@@ -3,6 +3,7 @@ import { createContext, use } from 'react';
 export interface AuthNavigationActions {
   completeSignIn: () => void;
   completeSignOut: () => void;
+  completeOnboarding: () => void;
 }
 
 const AuthNavigationContext = createContext<AuthNavigationActions | null>(null);
