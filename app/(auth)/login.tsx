@@ -15,6 +15,7 @@ import {
 } from '../../src/services/authService';
 import { saveSession } from '../../src/services/sessionManager';
 import { useAuthNavigation } from '../../src/context/auth-navigation-context';
+import { colors } from '../../src/theme/colors';
 
 type LoginState = 'idle' | 'loading' | 'cancelled' | 'unavailable' | 'error';
 
@@ -77,7 +78,7 @@ export default function LoginScreen() {
             {isLoading ? (
               <ActivityIndicator
                 size="small"
-                color="#3C4043"
+                color={colors.onSurface}
                 accessibilityLabel="Entrando com Google"
               />
             ) : (
@@ -126,7 +127,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
@@ -141,13 +142,13 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#0D47A1',
+    color: colors.primary,
     letterSpacing: 0.5,
     marginBottom: 8,
   },
   tagline: {
     fontSize: 15,
-    color: '#546E7A',
+    color: colors.onSurfaceVariant,
     fontWeight: '400',
   },
   actionBlock: {
@@ -158,9 +159,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 52,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: '#DADCE0',
+    borderColor: colors.outlineVariant,
     borderRadius: 12,
     gap: 10,
   },
@@ -168,18 +169,18 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   googleButtonPressed: {
-    backgroundColor: '#F1F3F4',
+    backgroundColor: colors.surfaceContainer,
   },
   googleIconText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#4285F4',
+    color: colors.primary,
     lineHeight: 22,
   },
   googleButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#3C4043',
+    color: colors.onSurface,
     letterSpacing: 0.25,
   },
   feedbackArea: {
@@ -190,12 +191,12 @@ const styles = StyleSheet.create({
   },
   cancelledMessage: {
     fontSize: 14,
-    color: '#757575',
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
   },
   errorMessage: {
     fontSize: 14,
-    color: '#D32F2F',
+    color: colors.error,
     textAlign: 'center',
   },
 });
