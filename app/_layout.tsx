@@ -3,19 +3,23 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { configureGoogleSignIn } from '../src/services/authService';
 import { getSession, isTokenExpired } from '../src/services/sessionManager';
+import { hasCompletedOnboarding } from '../src/services/onboardingService';
 import { AuthNavigationProvider } from '../src/context/auth-navigation-context';
 
-type AuthState = 'checking' | 'authenticated' | 'unauthenticated';
+type AuthState = 'checking' | 'onboarding' | 'authenticated' | 'unauthenticated';
 
 export default function RootLayout() {
   const [authState, setAuthState] = useState<AuthState>('checking');
   const segments = useSegments();
   const router = useRouter();
+
   const completeSignIn = useCallback(() => setAuthState('authenticated'), []);
   const completeSignOut = useCallback(() => setAuthState('unauthenticated'), []);
+  const completeOnboarding = useCallback(() => setAuthState('authenticated'), []);
+
   const authNavigation = useMemo(
-    () => ({ completeSignIn, completeSignOut }),
-    [completeSignIn, completeSignOut]
+    () => ({ completeSignIn, completeSignOut, completeOnboarding }),
+    [completeSignIn, completeSignOut, completeOnboarding]
   );
 
   useEffect(() => {
@@ -28,7 +32,12 @@ export default function RootLayout() {
       try {
         const session = await getSession();
         const valid = session !== null && !isTokenExpired(session.token);
-        setAuthState(valid ? 'authenticated' : 'unauthenticated');
+        if (!valid) {
+          setAuthState('unauthenticated');
+          return;
+        }
+        const onboardingDone = await hasCompletedOnboarding();
+        setAuthState(onboardingDone ? 'authenticated' : 'onboarding');
       } catch {
         setAuthState('unauthenticated');
       }
@@ -42,8 +51,11 @@ export default function RootLayout() {
 
     const inAuthGroup = segments[0] === '(auth)';
     const inAppGroup = segments[0] === '(app)';
+    const inOnboardingGroup = segments[0] === '(onboarding)';
 
-    if (authState === 'authenticated' && !inAppGroup) {
+    if (authState === 'onboarding' && !inOnboardingGroup) {
+      router.replace('/(onboarding)/');
+    } else if (authState === 'authenticated' && !inAppGroup) {
       router.replace('/(app)/home');
     } else if (authState === 'unauthenticated' && !inAuthGroup) {
       router.replace('/(auth)/login');
