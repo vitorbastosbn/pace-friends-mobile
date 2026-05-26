@@ -1,24 +1,46 @@
 import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
+import { StyleSheet, View, type ColorValue } from 'react-native';
+
+import { colors } from '../../src/theme/colors';
+import { fonts } from '../../src/theme/typography';
+
+type TabIconProps = {
+  color: ColorValue;
+  focused: boolean;
+  name: keyof typeof MaterialIcons.glyphMap;
+  size: number;
+};
+
+function TabIcon({ color, focused, name, size }: TabIconProps) {
+  return (
+    <View style={styles.iconContainer}>
+      <MaterialIcons name={name} size={size} color={color} />
+      {focused ? <View style={styles.activeDot} /> : null}
+    </View>
+  );
+}
 
 export default function AppLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0D47A1',
-        tabBarInactiveTintColor: '#9E9E9E',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.onSurfaceVariant,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopColor: '#E8EDF5',
-          borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 10,
-          paddingTop: 6,
+          backgroundColor: colors.surfaceContainerLowest,
+          borderTopWidth: 0,
+          borderTopLeftRadius: 14,
+          borderTopRightRadius: 14,
+          boxShadow: '0 -4px 16px rgba(16, 35, 59, 0.08)',
+          height: 80,
+          paddingBottom: 12,
+          paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
+          fontFamily: fonts.bodyMedium,
+          fontSize: 10,
         },
       }}
     >
@@ -26,8 +48,8 @@ export default function AppLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="home" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <TabIcon name="home" size={size} color={color} focused={focused} />
           ),
         }}
       />
@@ -35,8 +57,8 @@ export default function AppLayout() {
         name="profile"
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="person" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <TabIcon name="person" size={size} color={color} focused={focused} />
           ),
         }}
       />
@@ -44,8 +66,8 @@ export default function AppLayout() {
         name="challenges"
         options={{
           title: 'Desafios',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="emoji-events" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <TabIcon name="emoji-events" size={size} color={color} focused={focused} />
           ),
         }}
       />
@@ -53,8 +75,8 @@ export default function AppLayout() {
         name="trails"
         options={{
           title: 'Trilhas',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="map" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <TabIcon name="map" size={size} color={color} focused={focused} />
           ),
         }}
       />
@@ -71,3 +93,18 @@ export default function AppLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    alignItems: 'center',
+    height: 29,
+    justifyContent: 'flex-start',
+  },
+  activeDot: {
+    backgroundColor: colors.primary,
+    borderRadius: 2,
+    height: 4,
+    marginTop: 2,
+    width: 4,
+  },
+});

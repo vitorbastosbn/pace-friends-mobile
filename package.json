@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@expo-google-fonts/be-vietnam-pro": "^0.4.1",
+    "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-google-signin/google-signin": "^16.1.2",
     "expo": "~56.0.4",
     "expo-dev-client": "~56.0.15",
+    "expo-font": "~56.0.5",
     "expo-router": "^56.2.6",
     "expo-secure-store": "^56.0.4",
     "expo-status-bar": "~56.0.4",

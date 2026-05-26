@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../../../theme/colors';
+import { fonts } from '../../../theme/typography';
 
 interface StreakCardProps {
   currentStreak: number;
@@ -12,18 +14,20 @@ export function StreakCard({ currentStreak, onPress }: StreakCardProps) {
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Ofensiva atual: ${currentStreak} dias. Abrir detalhes.`}
+      accessibilityLabel={`Ofensiva atual: ${currentStreak} semanas. Abrir detalhes.`}
     >
-      <Text style={styles.label}>OFENSIVA</Text>
-      <View style={styles.valueRow}>
-        <Text style={styles.value} selectable>
-          {currentStreak}
-        </Text>
-        <Text style={styles.unit}>dias</Text>
+      <View style={styles.header}>
+        <Text selectable style={styles.label}>OFENSIVA</Text>
+        <MaterialIcons name="local-fire-department" size={20} color="#FF6D00" />
       </View>
-      <Text style={styles.message}>
-        {currentStreak > 0 ? 'Continue firme!' : 'Comece hoje!'}
-      </Text>
+      <View style={styles.body}>
+        <Text selectable style={styles.value}>
+          {currentStreak} {currentStreak === 1 ? 'semana' : 'semanas'}
+        </Text>
+        <Text selectable style={styles.message}>
+          {currentStreak > 0 ? 'Foco total!' : 'Comece hoje!'}
+        </Text>
+      </View>
     </Pressable>
   );
 }
@@ -31,43 +35,43 @@ export function StreakCard({ currentStreak, onPress }: StreakCardProps) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    minHeight: 140,
+    height: 144,
     padding: 16,
-    borderRadius: 18,
-    backgroundColor: colors.tertiaryFixed,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceContainerLowest,
     borderWidth: 1,
-    borderColor: colors.tertiaryFixed,
-    gap: 6,
+    borderColor: 'rgba(195, 198, 215, 0.20)',
+    boxShadow: '0 4px 12px rgba(16, 35, 59, 0.06)',
+    justifyContent: 'space-between',
   },
   pressed: {
     opacity: 0.86,
   },
-  label: {
-    color: colors.tertiary,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-  },
-  valueRow: {
+  header: {
+    alignItems: 'flex-start',
     flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 5,
+    justifyContent: 'space-between',
+  },
+  label: {
+    color: colors.onSurfaceVariant,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 10,
+    letterSpacing: 0.7,
+  },
+  body: {
+    gap: 3,
   },
   value: {
-    color: colors.tertiary,
-    fontSize: 40,
-    lineHeight: 46,
-    fontWeight: '800',
+    color: colors.onSurface,
+    fontFamily: fonts.displayBold,
+    fontSize: 22,
+    lineHeight: 30,
     fontVariant: ['tabular-nums'],
   },
-  unit: {
-    color: colors.tertiary,
-    fontSize: 15,
-    fontWeight: '600',
-  },
   message: {
-    color: colors.tertiary,
-    fontSize: 13,
-    fontWeight: '500',
+    color: colors.onSurfaceVariant,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 11,
+    lineHeight: 16,
   },
 });

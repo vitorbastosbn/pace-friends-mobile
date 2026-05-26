@@ -11,6 +11,7 @@ export default function HomePage() {
   const [pageState, setPageState] = useState<PageState>('loading');
   const [userId, setUserId] = useState('');
   const [userName, setUserName] = useState('');
+  const [userPhotoUrl, setUserPhotoUrl] = useState<string | undefined>();
   const [token, setToken] = useState('');
 
   useEffect(() => {
@@ -24,6 +25,7 @@ export default function HomePage() {
 
         setUserId(session.user.id);
         setUserName(session.user.name);
+        setUserPhotoUrl(session.user.photoUrl);
         setToken(session.token);
         setPageState('ready');
       } catch {
@@ -52,7 +54,14 @@ export default function HomePage() {
     );
   }
 
-  return <HomeScreen userId={userId} userName={userName} token={token} />;
+  return (
+    <HomeScreen
+      userId={userId}
+      userName={userName}
+      userPhotoUrl={userPhotoUrl}
+      token={token}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
