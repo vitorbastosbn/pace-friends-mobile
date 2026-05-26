@@ -1,29 +1,34 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { signOut } from '../../src/services/authService';
+import { useRouter } from 'expo-router';
 import { getSession } from '../../src/services/sessionManager';
-import { useAuthNavigation } from '../../src/context/auth-navigation-context';
+import {
+  StreakCard,
+  StreakCardError,
+  StreakCardSkeleton,
+} from '../../src/features/streak/components/StreakCard';
+import { useStreak } from '../../src/features/streak/hooks/useStreak';
 
 type HomeState = 'loading' | 'ready';
 
 export default function HomeScreen() {
-  const { completeSignOut } = useAuthNavigation();
+  const router = useRouter();
   const [homeState, setHomeState] = useState<HomeState>('loading');
   const [userName, setUserName] = useState<string>('');
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [token, setToken] = useState<string>('');
 
   useEffect(() => {
     async function loadSession() {
       try {
         const session = await getSession();
         setUserName(session?.user.name ?? '');
+        setToken(session?.token ?? '');
       } catch {
         setUserName('');
       } finally {
@@ -34,14 +39,8 @@ export default function HomeScreen() {
     void loadSession();
   }, []);
 
-  async function handleSignOut() {
-    setIsSigningOut(true);
-    try {
-      await signOut();
-    } finally {
-      completeSignOut();
-    }
-  }
+  const { streak, isLoading: streakLoading, error: streakError, reload: reloadStreak } =
+    useStreak(token);
 
   const welcomeMessage = userName ? `Bem-vindo, ${userName}!` : 'Bem-vindo!';
 
@@ -64,6 +63,15 @@ export default function HomeScreen() {
       <View style={styles.container}>
         {/* Welcome content — centered */}
         <View style={styles.welcomeBlock}>
+          {streakLoading && (
+            <StreakCardSkeleton onPress={() => router.push('/(app)/streak')} />
+          )}
+          {!streakLoading && streakError && (
+            <StreakCardError message={streakError} onRetry={reloadStreak} />
+          )}
+          {!streakLoading && !streakError && streak && (
+            <StreakCard data={streak} onPress={() => router.push('/(app)/streak')} />
+          )}
           <Text
             style={styles.welcomeMessage}
             accessibilityRole="header"
@@ -74,32 +82,6 @@ export default function HomeScreen() {
           <Text style={styles.subtitle}>
             Voce esta conectado ao Pace Friends.
           </Text>
-        </View>
-
-        {/* Logout action — anchored to bottom */}
-        <View style={styles.actionBlock}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.signOutButton,
-              isSigningOut && styles.signOutButtonDisabled,
-              pressed && !isSigningOut && styles.signOutButtonPressed,
-            ]}
-            onPress={handleSignOut}
-            disabled={isSigningOut}
-            accessibilityLabel="Sair da conta"
-            accessibilityRole="button"
-            accessibilityState={{ disabled: isSigningOut, busy: isSigningOut }}
-          >
-            {isSigningOut ? (
-              <ActivityIndicator
-                size="small"
-                color="#D32F2F"
-                accessibilityLabel="Saindo da conta"
-              />
-            ) : (
-              <Text style={styles.signOutButtonText}>Sair</Text>
-            )}
-          </Pressable>
         </View>
       </View>
     </SafeAreaView>
@@ -119,7 +101,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingBottom: 48,
   },
   welcomeBlock: {
     flex: 1,
@@ -139,29 +120,5 @@ const styles = StyleSheet.create({
     color: '#546E7A',
     textAlign: 'center',
     fontWeight: '400',
-  },
-  actionBlock: {
-    width: '100%',
-  },
-  signOutButton: {
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#D32F2F',
-    borderRadius: 12,
-    backgroundColor: 'transparent',
-  },
-  signOutButtonDisabled: {
-    opacity: 0.6,
-  },
-  signOutButtonPressed: {
-    backgroundColor: '#FFEBEE',
-  },
-  signOutButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#D32F2F',
-    letterSpacing: 0.25,
   },
 });
