@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
+  Modal,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -11,8 +12,10 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { signOut } from '../../../services/authService';
 import { useAuthNavigation } from '../../../context/auth-navigation-context';
+import { deleteAccount } from '../services/profileService';
 import { useProfile } from '../hooks/useProfile';
 import { ProfileCard } from '../components/ProfileCard';
 import { StatRow } from '../components/StatRow';
@@ -45,7 +48,10 @@ interface ProfileScreenProps {
 
 export function ProfileScreen({ userId, token }: ProfileScreenProps) {
   const { completeSignOut } = useAuthNavigation();
+  const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const {
     profile,
     loadState,
@@ -100,6 +106,19 @@ export function ProfileScreen({ userId, token }: ProfileScreenProps) {
       await signOut();
     } finally {
       completeSignOut();
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setIsDeletingAccount(true);
+    try {
+      await deleteAccount(userId, token);
+      await signOut();
+      completeSignOut();
+    } catch {
+      setIsDeletingAccount(false);
+      setShowDeleteModal(false);
+      Alert.alert('Erro', 'Nao foi possivel excluir a conta. Tente novamente.');
     }
   }
 
@@ -235,10 +254,22 @@ export function ProfileScreen({ userId, token }: ProfileScreenProps) {
               accessibilityLabel={`Sequencia atual: ${String(profile?.currentStreak ?? 0)} dias`}
             />
             <StatRow
-              label="Conquistas"
-              value={profile?.achievementsUnlocked ?? 0}
-              accessibilityLabel={`Conquistas desbloqueadas: ${String(profile?.achievementsUnlocked ?? 0)}`}
+              label="Vitorias"
+              value={profile?.totalVictories ?? 0}
+              accessibilityLabel={`Vitorias em desafios: ${String(profile?.totalVictories ?? 0)}`}
             />
+            <Pressable
+              onPress={() => router.push('/(app)/achievements')}
+              accessibilityLabel={`Conquistas desbloqueadas: ${String(profile?.achievementsUnlocked ?? 0)}. Toque para ver todas`}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.achievementsRow, pressed && styles.achievementsRowPressed]}
+            >
+              <View style={styles.achievementsLabel}>
+                <Text style={styles.achievementsLabelText}>Conquistas</Text>
+                <Text style={styles.achievementsValue}>{profile?.achievementsUnlocked ?? 0}</Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={20} color="#546E7A" />
+            </Pressable>
 
             {/* Settings */}
             <Text style={[styles.sectionTitle, styles.sectionTitleSpaced]}>
@@ -328,7 +359,74 @@ export function ProfileScreen({ userId, token }: ProfileScreenProps) {
             </Text>
           </Pressable>
         )}
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.deleteButton,
+            (isLoading || isSubmitting) && styles.deleteButtonDisabled,
+            pressed && !isLoading && !isSubmitting && styles.deleteButtonPressed,
+          ]}
+          onPress={() => setShowDeleteModal(true)}
+          disabled={isLoading || isSubmitting}
+          accessibilityLabel="Excluir conta"
+          accessibilityRole="button"
+          accessibilityState={{ disabled: isLoading || isSubmitting }}
+        >
+          <Text style={[styles.deleteButtonText, (isLoading || isSubmitting) && styles.deleteButtonTextDisabled]}>
+            Excluir conta
+          </Text>
+        </Pressable>
       </View>
+
+      {/* Delete account confirmation modal */}
+      <Modal
+        visible={showDeleteModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => !isDeletingAccount && setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Excluir conta?</Text>
+            <Text style={styles.modalBody}>
+              Todos os seus dados, desafios e conquistas serao removidos permanentemente. Esta acao nao pode ser desfeita.
+            </Text>
+            <View style={styles.modalActions}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.modalCancelButton,
+                  isDeletingAccount && styles.modalButtonDisabled,
+                  pressed && !isDeletingAccount && styles.modalCancelButtonPressed,
+                ]}
+                onPress={() => setShowDeleteModal(false)}
+                disabled={isDeletingAccount}
+                accessibilityLabel="Cancelar exclusao"
+                accessibilityRole="button"
+              >
+                <Text style={styles.modalCancelButtonText}>Cancelar</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.modalDeleteButton,
+                  isDeletingAccount && styles.modalButtonDisabled,
+                  pressed && !isDeletingAccount && styles.modalDeleteButtonPressed,
+                ]}
+                onPress={() => void handleDeleteAccount()}
+                disabled={isDeletingAccount}
+                accessibilityLabel="Confirmar exclusao da conta"
+                accessibilityRole="button"
+                accessibilityState={{ busy: isDeletingAccount }}
+              >
+                {isDeletingAccount ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.modalDeleteButtonText}>Excluir conta</Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -474,6 +572,34 @@ const styles = StyleSheet.create({
   cancelButtonTextDisabled: {
     color: '#9E9E9E',
   },
+  achievementsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E8EDF5',
+    marginBottom: 4,
+  },
+  achievementsRowPressed: {
+    opacity: 0.7,
+  },
+  achievementsLabel: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  achievementsLabelText: {
+    fontSize: 15,
+    color: '#546E7A',
+    fontWeight: '500',
+  },
+  achievementsValue: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0D47A1',
+  },
   errorContainer: {
     flex: 1,
     alignItems: 'center',
@@ -501,5 +627,96 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  deleteButton: {
+    height: 48,
+    backgroundColor: 'transparent',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#D32F2F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  deleteButtonDisabled: {
+    opacity: 0.4,
+  },
+  deleteButtonPressed: {
+    backgroundColor: '#FFEBEE',
+  },
+  deleteButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#D32F2F',
+    letterSpacing: 0.2,
+  },
+  deleteButtonTextDisabled: {
+    color: '#E57373',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 360,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0D1B2A',
+    marginBottom: 12,
+  },
+  modalBody: {
+    fontSize: 14,
+    color: '#546E7A',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalCancelButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    borderColor: '#546E7A',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelButtonPressed: {
+    backgroundColor: '#EEF2FF',
+  },
+  modalCancelButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#546E7A',
+  },
+  modalDeleteButton: {
+    flex: 1,
+    height: 48,
+    borderRadius: 10,
+    backgroundColor: '#D32F2F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalDeleteButtonPressed: {
+    backgroundColor: '#B71C1C',
+  },
+  modalDeleteButtonText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  modalButtonDisabled: {
+    opacity: 0.5,
   },
 });

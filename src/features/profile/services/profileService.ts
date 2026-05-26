@@ -91,6 +91,69 @@ export async function updateProfile(
   return data;
 }
 
+export interface PublicProfileData {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  totalVictories: number;
+  achievementsUnlocked: number;
+}
+
+export async function getPublicProfile(userId: string): Promise<PublicProfileData> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/users/${userId}/public`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch {
+    throw new ProfileServiceError(
+      'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+    );
+  }
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new ProfileServiceError('Perfil nao encontrado.', 404);
+    }
+    throw new ProfileServiceError(
+      `Erro ao carregar perfil publico (HTTP ${response.status}).`,
+      response.status
+    );
+  }
+
+  return (await response.json()) as PublicProfileData;
+}
+
+export async function deleteAccount(
+  userId: string,
+  token: string
+): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch {
+    throw new ProfileServiceError(
+      'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+    );
+  }
+
+  if (!response.ok) {
+    if (response.status === 403) {
+      throw new ProfileServiceError('Acesso negado.', 403);
+    }
+    throw new ProfileServiceError(
+      `Erro ao excluir conta (HTTP ${response.status}).`,
+      response.status
+    );
+  }
+}
+
 export async function updateFrequency(
   token: string,
   weeklyFrequency: number

@@ -21,6 +21,11 @@ export function TrailItemCard({ item }: TrailItemCardProps) {
         <Text style={[styles.icon, { color: config.color }]}>{config.icon}</Text>
       </View>
       <View style={styles.content}>
+        {item.status === 'IN_PROGRESS' && (
+          <View style={styles.nextMissionBadge}>
+            <Text style={styles.nextMissionText}>Próxima missão</Text>
+          </View>
+        )}
         <Text
           style={[
             styles.description,
@@ -72,6 +77,21 @@ const styles = StyleSheet.create({
   },
   lockedText: {
     color: '#9E9E9E',
+  },
+  nextMissionBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#3a73ff',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginBottom: 4,
+  },
+  nextMissionText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#fff',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   xpBadge: {
     alignSelf: 'flex-start',

@@ -77,3 +77,67 @@ export function calculateLivePace(
   const paceSecondsPerKm = durationSeconds / distance;
   return formatPace(paceSecondsPerKm);
 }
+
+export function mapIndividualChallenge(response: IndividualChallengeApiResponse): IndividualChallenge {
+  return {
+    id: response.id,
+    title: response.title,
+    goalDistanceKm: response.goal_distance_km,
+    deadline: response.deadline,
+    status: response.status,
+    progressKm: response.progress_km,
+    progressPct: response.progress_percentage,
+  };
+}
+
+export function mapFriendChallenge(response: FriendChallengeApiResponse): FriendChallenge {
+  return {
+    id: response.id,
+    title: response.title,
+    status: response.status,
+    startDate: response.start_date,
+    endDate: response.end_date,
+    participantCount: response.participant_count,
+    userRole: response.user_role,
+    userRankPosition: response.user_rank_position,
+  };
+}
+
+export function mapChallengeDetail(response: ChallengeDetailApiResponse): ChallengeDetail {
+  return {
+    id: response.id,
+    title: response.title,
+    description: response.description,
+    challengeType: response.challenge_type,
+    goalValue: response.goal_value,
+    startDate: response.start_date,
+    endDate: response.end_date,
+    inviteCode: response.invite_code,
+    status: response.status,
+    participantCount: response.participant_count,
+    maxParticipants: response.max_participants,
+    userRole: response.user_role,
+    ranking: response.ranking,
+    checkIns: response.check_ins.map((checkIn) => ({
+      id: checkIn.id,
+      participantName: checkIn.participant_name,
+      distanceKm: checkIn.distance_km,
+      date: checkIn.date,
+      status: checkIn.status,
+    })),
+    permissions: {
+      canCheckIn: response.permissions.can_check_in,
+      canLeave: response.permissions.can_leave,
+      canDelete: response.permissions.can_delete,
+      canRejectCheckIns: response.permissions.can_reject_check_ins,
+    },
+  };
+}
+import type {
+  ChallengeDetail,
+  ChallengeDetailApiResponse,
+  FriendChallenge,
+  FriendChallengeApiResponse,
+  IndividualChallenge,
+  IndividualChallengeApiResponse,
+} from '../types/challenge.types';

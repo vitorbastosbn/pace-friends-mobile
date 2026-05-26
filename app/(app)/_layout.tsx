@@ -58,6 +58,7 @@ export default function AppLayout() {
           ),
         }}
       />
+      <Tabs.Screen name="achievements" options={{ href: null }} />
       <Tabs.Screen name="streak" options={{ href: null }} />
       <Tabs.Screen name="challenges/[id]" options={{ href: null }} />
       <Tabs.Screen name="challenges/create" options={{ href: null }} />
@@ -66,6 +67,7 @@ export default function AppLayout() {
       <Tabs.Screen name="challenges/join" options={{ href: null }} />
       <Tabs.Screen name="challenges/friend/[id]" options={{ href: null }} />
       <Tabs.Screen name="challenges/friend/[id]/register-check-in" options={{ href: null }} />
+      <Tabs.Screen name="profile/[userId]" options={{ href: null }} />
     </Tabs>
   );
 }

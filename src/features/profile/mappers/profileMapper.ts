@@ -10,6 +10,7 @@ export function mapProfileDataToUIModel(data: ProfileData): ProfileUIModel {
     totalXp: data.stats.totalXp,
     currentStreak: data.stats.currentStreak,
     achievementsUnlocked: data.stats.achievementsUnlocked,
+    totalVictories: data.stats.totalVictories,
     effectiveFrom: data.effectiveFrom,
   };
 }

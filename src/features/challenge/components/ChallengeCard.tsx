@@ -1,9 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native';
-import type { ChallengeProgressResponse, ChallengeStatus } from '../types/challenge.types';
+import type {
+  ChallengeProgressResponse,
+  ChallengeStatus,
+  FriendChallenge,
+  IndividualChallenge,
+} from '../types/challenge.types';
 import { daysRemaining, formatDate } from '../mappers/challengeMapper';
+import { FriendChallengeCard } from './FriendChallengeCard';
 
 interface ChallengeCardProps {
-  data: ChallengeProgressResponse;
+  data: ChallengeProgressResponse | IndividualChallenge | FriendChallenge;
 }
 
 const STATUS_LABEL: Record<ChallengeStatus, string> = {
@@ -34,6 +40,10 @@ const BADGE_TEXT_COLOR: Record<ChallengeStatus, string> = {
 };
 
 export function ChallengeCard({ data }: ChallengeCardProps) {
+  if ('userRole' in data) {
+    return <FriendChallengeCard data={data} />;
+  }
+
   const { title, status, deadline, goalDistanceKm, progressKm, progressPct } = data;
   const days = daysRemaining(deadline);
   const clampedPct = Math.min(100, Math.max(0, progressPct));

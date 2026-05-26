@@ -17,6 +17,7 @@ export interface ProfileStats {
   totalXp: number;
   currentStreak: number;
   achievementsUnlocked: number;
+  totalVictories: number;
 }
 
 export interface ProfileData {
@@ -48,5 +49,6 @@ export interface ProfileUIModel {
   totalXp: number;
   currentStreak: number;
   achievementsUnlocked: number;
+  totalVictories: number;
   effectiveFrom: string;
 }

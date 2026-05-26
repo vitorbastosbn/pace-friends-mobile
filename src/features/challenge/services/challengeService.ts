@@ -8,7 +8,18 @@ import type {
   RankingResponse,
   RegisterActivityRequest,
   RegisterCheckInRequest,
+  ChallengeDetailApiResponse,
+  ChallengeDetail,
+  FriendChallenge,
+  FriendChallengeApiResponse,
+  IndividualChallenge,
+  IndividualChallengeApiResponse,
 } from '../types/challenge.types';
+import {
+  mapChallengeDetail,
+  mapFriendChallenge,
+  mapIndividualChallenge,
+} from '../mappers/challengeMapper';
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://10.0.2.2:8080/api/v1';
@@ -411,11 +422,11 @@ export async function rejectCheckIn(
     if (response.status === 404) {
       throw new ChallengeServiceError(errorMessage || 'Check-in nao encontrado.', 404);
     }
-    if (response.status === 409) {
+    if (response.status === 409 || response.status === 422) {
       const fallback = errorCode === 'challenge_not_in_audit'
         ? 'O periodo de auditoria deste desafio foi encerrado.'
         : 'Este check-in ja foi rejeitado.';
-      throw new ChallengeServiceError(errorMessage || fallback, 409);
+      throw new ChallengeServiceError(errorMessage || fallback, response.status);
     }
     throw new ChallengeServiceError(
       errorMessage || `Erro ao rejeitar check-in (HTTP ${response.status}).`,
@@ -442,3 +453,76 @@ export async function getChallengeRanking(
   }
   return handleResponse<RankingResponse>(response);
 }
+
+export const challengeService = {
+  async getMyChallenge(token: string): Promise<IndividualChallenge | null> {
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/challenges/me`, {
+        method: 'GET',
+        headers: authHeaders(token),
+      });
+    } catch {
+      throw new ChallengeServiceError(
+        'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+      );
+    }
+
+    if (response.status === 204) {
+      return null;
+    }
+
+    return mapIndividualChallenge(await handleResponse<IndividualChallengeApiResponse>(response));
+  },
+};
+
+export const friendChallengeService = {
+  async list(token: string): Promise<FriendChallenge[]> {
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/friend-challenges`, {
+        method: 'GET',
+        headers: authHeaders(token),
+      });
+    } catch {
+      throw new ChallengeServiceError(
+        'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+      );
+    }
+
+    const challenges = await handleResponse<FriendChallengeApiResponse[]>(response);
+    return challenges.map(mapFriendChallenge);
+  },
+
+  async getDetail(token: string, id: string): Promise<ChallengeDetail> {
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/friend-challenges/${id}`, {
+        method: 'GET',
+        headers: authHeaders(token),
+      });
+    } catch {
+      throw new ChallengeServiceError(
+        'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+      );
+    }
+
+    return mapChallengeDetail(await handleResponse<ChallengeDetailApiResponse>(response));
+  },
+
+  async joinByCode(token: string, code: string): Promise<void> {
+    await joinFriendChallenge(token, code);
+  },
+
+  async leave(token: string, id: string): Promise<void> {
+    await leaveFriendChallenge(token, id);
+  },
+
+  async delete(token: string, id: string): Promise<void> {
+    await deleteFriendChallenge(token, id);
+  },
+
+  async rejectCheckIn(token: string, challengeId: string, checkInId: string): Promise<void> {
+    await rejectCheckIn(token, challengeId, checkInId);
+  },
+};

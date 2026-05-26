@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -20,6 +21,7 @@ import {
 } from '../validation/challengeValidation';
 import { calculateLivePace, parseDurationToSeconds } from '../mappers/challengeMapper';
 import { notifyStreakChanged } from '../../streak/services/streakEvents';
+import { getUserAchievements } from '../../achievements/services/achievementsService';
 
 interface RegisterActivityScreenProps {
   token: string;
@@ -66,6 +68,13 @@ export function RegisterActivityScreen({
     }
 
     setSubmitError(null);
+
+    let previousUnlockedIds = new Set<string>();
+    try {
+      const prev = await getUserAchievements(token);
+      previousUnlockedIds = new Set(prev.filter((a) => a.unlocked).map((a) => a.id));
+    } catch { /* ignore */ }
+
     const success = await registerActivity({
       distanceKm: parseFloat(distanceKmText),
       durationSeconds,
@@ -75,6 +84,16 @@ export function RegisterActivityScreen({
 
     if (success) {
       notifyStreakChanged();
+
+      try {
+        const updated = await getUserAchievements(token);
+        const newlyUnlocked = updated.filter((a) => a.unlocked && !previousUnlockedIds.has(a.id));
+        if (newlyUnlocked.length > 0) {
+          const names = newlyUnlocked.map((a) => a.name).join(', ');
+          Alert.alert('Conquista desbloqueada!', names, [{ text: 'Ver conquistas', style: 'default' }]);
+        }
+      } catch { /* ignore */ }
+
       router.back();
     } else {
       setSubmitError('Nao foi possivel registrar a atividade. Tente novamente.');

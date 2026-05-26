@@ -1,36 +1,30 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { HomeScreen } from '../../src/features/home/screens/HomeScreen';
 import { getSession } from '../../src/services/sessionManager';
+import { AchievementsScreen } from '../../src/features/achievements/screens/AchievementsScreen';
 
 type PageState = 'loading' | 'ready' | 'unauthenticated';
 
-export default function HomePage() {
+export default function AchievementsPage() {
   const router = useRouter();
   const [pageState, setPageState] = useState<PageState>('loading');
-  const [userId, setUserId] = useState('');
-  const [userName, setUserName] = useState('');
   const [token, setToken] = useState('');
 
   useEffect(() => {
     async function loadSession() {
       try {
         const session = await getSession();
-        if (!session) {
+        if (session) {
+          setToken(session.token);
+          setPageState('ready');
+        } else {
           setPageState('unauthenticated');
-          return;
         }
-
-        setUserId(session.user.id);
-        setUserName(session.user.name);
-        setToken(session.token);
-        setPageState('ready');
       } catch {
         setPageState('unauthenticated');
       }
     }
-
     void loadSession();
   }, []);
 
@@ -43,22 +37,18 @@ export default function HomePage() {
   if (pageState !== 'ready') {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator
-          size="large"
-          color="#0D47A1"
-          accessibilityLabel="Carregando Home"
-        />
+        <ActivityIndicator size="large" color="#0D47A1" accessibilityLabel="Carregando conquistas" />
       </View>
     );
   }
 
-  return <HomeScreen userId={userId} userName={userName} token={token} />;
+  return <AchievementsScreen token={token} />;
 }
 
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#F6F8FC',
+    backgroundColor: '#F8FAFF',
     alignItems: 'center',
     justifyContent: 'center',
   },

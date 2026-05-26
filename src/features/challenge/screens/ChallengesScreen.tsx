@@ -1,365 +1,305 @@
-import { useRef, useEffect, useCallback } from 'react';
-import {
-  Animated,
-  FlatList,
-  Pressable,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useRouter, useFocusEffect } from 'expo-router';
-import type { FriendChallengeResponse } from '../types/challenge.types';
-import { useFriendChallenges } from '../hooks/useFriendChallenges';
-import { FriendChallengeCard } from '../components/FriendChallengeCard';
+import { useCallback, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { ChallengeCard } from '../components/ChallengeCard';
+import { JoinByCodeModal } from '../components/JoinByCodeModal';
+import { useChallengeOverview } from '../hooks/useChallengeOverview';
+import type { FriendChallenge } from '../types/challenge.types';
 
 interface ChallengesScreenProps {
   token: string;
-  userId?: string;
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <View style={styles.emptyCard}>
+      <Text selectable style={styles.emptyText}>{message}</Text>
+    </View>
+  );
+}
+
+function FriendSection({
+  title,
+  emptyMessage,
+  challenges,
+  onOpen,
+}: {
+  title: string;
+  emptyMessage: string;
+  challenges: FriendChallenge[];
+  onOpen: (id: string) => void;
+}) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {challenges.length === 0 ? (
+        <EmptyState message={emptyMessage} />
+      ) : (
+        challenges.map((challenge) => (
+          <Pressable
+            accessibilityLabel={`Abrir desafio ${challenge.title}`}
+            accessibilityRole="button"
+            key={challenge.id}
+            onPress={() => onOpen(challenge.id)}
+            style={({ pressed }) => pressed ? styles.pressed : null}
+          >
+            <ChallengeCard data={challenge} />
+          </Pressable>
+        ))
+      )}
+    </View>
+  );
 }
 
 export function ChallengesScreen({ token }: ChallengesScreenProps) {
   const router = useRouter();
-  const { challenges, loadState, loadError, reload } = useFriendChallenges(token);
-  const isLoading = loadState === 'loading';
-  const error = loadError;
-  const shimmerAnim = useRef(new Animated.Value(0.4)).current;
+  const [isJoinOpen, setIsJoinOpen] = useState(false);
+  const { individualChallenge, friendChallenges, isLoading, error, reload } =
+    useChallengeOverview(token);
 
   useFocusEffect(
     useCallback(() => {
-      if (token) reload();
-    }, [token, reload])
+      void reload();
+    }, [reload])
   );
 
-  useEffect(() => {
-    if (isLoading) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(shimmerAnim, {
-            toValue: 1,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-          Animated.timing(shimmerAnim, {
-            toValue: 0.4,
-            duration: 800,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    } else {
-      shimmerAnim.stopAnimation();
-      shimmerAnim.setValue(1);
-    }
-  }, [isLoading, shimmerAnim]);
+  const created = friendChallenges.filter((challenge) => challenge.userRole === 'CREATOR');
+  const participating = friendChallenges.filter((challenge) => challenge.userRole === 'MEMBER');
 
-  function renderHeader() {
+  if (isLoading) {
     return (
-      <View style={styles.listHeader}>
-        <Text style={styles.sectionLabel}>
-          {challenges.length > 0
-            ? `${challenges.length} desafio${challenges.length !== 1 ? 's' : ''}`
-            : ''}
-        </Text>
-      </View>
-    );
-  }
-
-  function renderItem({ item }: { item: FriendChallengeResponse }) {
-    return (
-      <Pressable
-        onPress={() => router.push(`/(app)/challenges/friend/${item.id}`)}
-        accessibilityRole="button"
-        accessibilityLabel={`Abrir desafio: ${item.title}`}
+      <ScrollView
+        accessibilityLabel="Carregando desafios"
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.screen}
       >
-        <FriendChallengeCard data={item} />
-      </Pressable>
-    );
-  }
-
-  function renderEmpty() {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>Nenhum desafio com amigos</Text>
-        <Text style={styles.emptySubtitle}>
-          Crie um desafio ou entre por codigo!
-        </Text>
-        <Pressable
-          style={({ pressed }) => [
-            styles.emptyButton,
-            pressed && styles.emptyButtonPressed,
-          ]}
-          onPress={() => router.push('/(app)/challenges/friend-create')}
-          accessibilityLabel="Criar desafio com amigos"
-          accessibilityRole="button"
-        >
-          <Text style={styles.emptyButtonText}>Criar desafio</Text>
-        </Pressable>
-      </View>
+        <View style={[styles.skeleton, styles.skeletonHeader]} />
+        <View style={styles.skeleton} />
+        <View style={styles.skeleton} />
+        <View style={styles.skeleton} />
+      </ScrollView>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle} accessibilityRole="header">
-            Desafios
-          </Text>
-          <View style={styles.headerActions}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.newButton,
-                pressed && styles.newButtonPressed,
-              ]}
-              onPress={() => router.push('/(app)/challenges/friend-create')}
-              accessibilityLabel="Novo desafio"
-              accessibilityRole="button"
-            >
-              <Text style={styles.newButtonText}>+ Novo</Text>
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [
-                styles.joinButton,
-                pressed && styles.joinButtonPressed,
-              ]}
-              onPress={() => router.push('/(app)/challenges/join')}
-              accessibilityLabel="Entrar em desafio"
-              accessibilityRole="button"
-            >
-              <Text style={styles.joinButtonText}>Entrar</Text>
-            </Pressable>
-          </View>
-        </View>
-        <View style={styles.errorContainer}>
-          <Text
-            style={styles.errorText}
-            accessibilityRole="alert"
-            accessibilityLiveRegion="polite"
-          >
-            {error}
-          </Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.retryButton,
-              pressed && styles.retryButtonPressed,
-            ]}
-            onPress={reload}
-            accessibilityLabel="Tentar novamente"
-            accessibilityRole="button"
-          >
-            <Text style={styles.retryButtonText}>Tentar novamente</Text>
-          </Pressable>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle} accessibilityRole="header">
-            Desafios
-          </Text>
-        </View>
-        <View style={styles.scrollContent}>
-          {[0, 1, 2].map((i) => (
-            <Animated.View
-              key={i}
-              style={[styles.skeletonCard, { opacity: shimmerAnim }]}
-              accessible={false}
-            />
-          ))}
-        </View>
-      </SafeAreaView>
+      <View style={styles.centerState}>
+        <Text selectable style={styles.errorTitle}>Nao foi possivel carregar seus desafios</Text>
+        <Text selectable style={styles.errorText}>{error}</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => void reload()}
+          style={({ pressed }) => [styles.primaryButton, pressed ? styles.pressed : null]}
+        >
+          <Text style={styles.primaryButtonLabel}>Tentar novamente</Text>
+        </Pressable>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          Desafios
-        </Text>
-        <View style={styles.headerActions}>
-          <Pressable
-            style={({ pressed }) => [
-              styles.newButton,
-              pressed && styles.newButtonPressed,
-            ]}
-            onPress={() => router.push('/(app)/challenges/friend-create')}
-            accessibilityLabel="Novo desafio"
-            accessibilityRole="button"
-          >
-            <Text style={styles.newButtonText}>+ Novo</Text>
-          </Pressable>
-          <Pressable
-            style={({ pressed }) => [
-              styles.joinButton,
-              pressed && styles.joinButtonPressed,
-            ]}
-            onPress={() => router.push('/(app)/challenges/join')}
-            accessibilityLabel="Entrar em desafio"
-            accessibilityRole="button"
-          >
-            <Text style={styles.joinButtonText}>Entrar</Text>
-          </Pressable>
+    <>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.screen}
+      >
+        <View style={styles.hero}>
+          <View style={styles.heroCopy}>
+            <Text style={styles.title}>Desafios</Text>
+            <Text selectable style={styles.subtitle}>
+              Evolua sozinho ou dispute com seus amigos.
+            </Text>
+          </View>
+          <View style={styles.actions}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push('/(app)/challenges/friend-create')}
+              style={({ pressed }) => [styles.primaryButton, pressed ? styles.pressed : null]}
+            >
+              <Text style={styles.primaryButtonLabel}>Criar desafio</Text>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setIsJoinOpen(true)}
+              style={({ pressed }) => [styles.secondaryButton, pressed ? styles.pressed : null]}
+            >
+              <Text style={styles.secondaryButtonLabel}>Entrar por codigo</Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
 
-      <FlatList
-        data={challenges}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={renderEmpty}
-        contentContainerStyle={[
-          styles.scrollContent,
-          challenges.length === 0 && styles.scrollContentEmpty,
-        ]}
-        showsVerticalScrollIndicator={false}
+        <View style={styles.section}>
+          <View style={styles.sectionHeading}>
+            <Text style={styles.sectionTitle}>Individual</Text>
+            {!individualChallenge ? (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push('/(app)/challenges/create')}
+              >
+                <Text style={styles.inlineAction}>Criar</Text>
+              </Pressable>
+            ) : null}
+          </View>
+          {individualChallenge ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push(`/(app)/challenges/${individualChallenge.id}`)}
+              style={({ pressed }) => pressed ? styles.pressed : null}
+            >
+              <ChallengeCard data={individualChallenge} />
+            </Pressable>
+          ) : (
+            <EmptyState message="Voce ainda nao possui um desafio individual ativo." />
+          )}
+        </View>
+
+        <FriendSection
+          challenges={created}
+          emptyMessage="Nenhum desafio criado por voce."
+          onOpen={(id) => router.push(`/(app)/challenges/friend/${id}`)}
+          title="Criados por mim"
+        />
+        <FriendSection
+          challenges={participating}
+          emptyMessage="Voce ainda nao participa de desafios com amigos."
+          onOpen={(id) => router.push(`/(app)/challenges/friend/${id}`)}
+          title="Participo"
+        />
+      </ScrollView>
+
+      <JoinByCodeModal
+        onClose={() => setIsJoinOpen(false)}
+        onJoined={() => void reload()}
+        token={token}
+        visible={isJoinOpen}
       />
-    </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  screen: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: '#F5F8FD',
   },
-  header: {
+  content: {
+    gap: 26,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 36,
+  },
+  hero: {
+    gap: 20,
+  },
+  heroCopy: {
+    gap: 6,
+  },
+  title: {
+    color: '#10233B',
+    fontSize: 30,
+    fontWeight: '800',
+  },
+  subtitle: {
+    color: '#60758B',
+    fontSize: 15,
+    lineHeight: 21,
+  },
+  actions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  primaryButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderRadius: 14,
+    backgroundColor: '#1D4ED8',
+  },
+  primaryButtonLabel: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  secondaryButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    borderWidth: 1,
+    borderColor: '#D6E0ED',
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+  },
+  secondaryButtonLabel: {
+    color: '#1D4ED8',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  section: {
+    gap: 12,
+  },
+  sectionHeading: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8EDF5',
-    backgroundColor: '#F8FAFF',
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0D47A1',
-    letterSpacing: 0.3,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  newButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: '#0D47A1',
-    borderRadius: 20,
-  },
-  newButtonPressed: {
-    backgroundColor: '#0A3880',
-  },
-  newButtonText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  joinButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: '#3a73ff',
-    borderRadius: 20,
-  },
-  joinButtonPressed: {
-    backgroundColor: '#2a60e0',
-  },
-  joinButtonText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  listHeader: {
-    marginBottom: 8,
-  },
-  sectionLabel: {
+  sectionTitle: {
+    color: '#586D84',
     fontSize: 12,
-    fontWeight: '700',
-    color: '#78909C',
+    fontWeight: '800',
+    letterSpacing: 0.9,
     textTransform: 'uppercase',
-    letterSpacing: 0.8,
   },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 32,
-  },
-  scrollContentEmpty: {
-    flex: 1,
-  },
-  skeletonCard: {
-    height: 120,
-    backgroundColor: '#E0E8F0',
-    borderRadius: 14,
-    marginBottom: 12,
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    gap: 12,
-  },
-  emptyTitle: {
-    fontSize: 18,
+  inlineAction: {
+    color: '#1D4ED8',
+    fontSize: 13,
     fontWeight: '700',
-    color: '#37474F',
-    textAlign: 'center',
   },
-  emptySubtitle: {
+  emptyCard: {
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#E2E9F3',
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  emptyText: {
+    color: '#718398',
     fontSize: 14,
-    color: '#78909C',
-    textAlign: 'center',
     lineHeight: 20,
   },
-  emptyButton: {
-    marginTop: 8,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    backgroundColor: '#0D47A1',
-    borderRadius: 12,
+  skeleton: {
+    height: 126,
+    borderRadius: 18,
+    backgroundColor: '#E6EDF6',
   },
-  emptyButtonPressed: {
-    backgroundColor: '#0A3880',
+  skeletonHeader: {
+    height: 88,
   },
-  emptyButtonText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  errorContainer: {
+  centerState: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    gap: 16,
+    gap: 12,
+    padding: 28,
+    backgroundColor: '#F5F8FD',
+  },
+  errorTitle: {
+    color: '#15263B',
+    fontSize: 18,
+    fontWeight: '700',
+    textAlign: 'center',
   },
   errorText: {
-    fontSize: 15,
-    color: '#D32F2F',
+    color: '#667A90',
+    fontSize: 14,
+    lineHeight: 20,
     textAlign: 'center',
-    lineHeight: 22,
+    paddingBottom: 6,
   },
-  retryButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    backgroundColor: '#0D47A1',
-    borderRadius: 12,
-  },
-  retryButtonPressed: {
-    backgroundColor: '#0A3880',
-  },
-  retryButtonText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#FFFFFF',
+  pressed: {
+    opacity: 0.75,
   },
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   ActivityIndicator,
   ScrollView,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { LevelUpBanner } from '../components/LevelUpBanner';
 import { TrailItemCard } from '../components/TrailItemCard';
 import { TrailProgressBar } from '../components/TrailProgressBar';
@@ -20,6 +21,17 @@ interface TrailScreenProps {
 export function TrailScreen({ userId, token }: TrailScreenProps) {
   const { trail, loadState, loadError, levelUpState, levelUpError, levelUpResult, executeLevelUp, reload } =
     useTrail(userId, token);
+
+  const hasMounted = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (hasMounted.current) {
+        reload();
+      } else {
+        hasMounted.current = true;
+      }
+    }, [reload])
+  );
 
   if (loadState === 'loading' || loadState === 'idle') {
     return (
