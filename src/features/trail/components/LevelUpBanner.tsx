@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { colors } from '../../../theme/colors';
 
 interface LevelUpBannerProps {
   isLoading: boolean;
@@ -15,23 +16,27 @@ interface LevelUpBannerProps {
 export function LevelUpBanner({ isLoading, onLevelUp }: LevelUpBannerProps) {
   return (
     <View style={styles.banner}>
-      <Text style={styles.star}>★</Text>
-      <View style={styles.textContainer}>
+      {/* Decorative glow blob (simulated) */}
+      <View style={styles.decorBlob} />
+
+      <View style={styles.content}>
         <Text style={styles.title}>Pronto para evoluir!</Text>
         <Text style={styles.subtitle}>
-          Voce completou todos os criterios para avançar de nivel.
+          Você completou todos os critérios para avançar de nível.
         </Text>
       </View>
+
       <TouchableOpacity
         style={[styles.button, isLoading && styles.buttonDisabled]}
         onPress={onLevelUp}
         disabled={isLoading}
+        activeOpacity={0.85}
         accessibilityLabel="Evoluir de nivel"
       >
         {isLoading ? (
-          <ActivityIndicator size="small" color="#fff" />
+          <ActivityIndicator size="small" color={colors.onSurface} />
         ) : (
-          <Text style={styles.buttonText}>Evoluir</Text>
+          <Text style={styles.buttonText}>Evoluir ★</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -40,48 +45,55 @@ export function LevelUpBanner({ isLoading, onLevelUp }: LevelUpBannerProps) {
 
 const styles = StyleSheet.create({
   banner: {
-    backgroundColor: '#E3F0FF',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#3a73ff',
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    gap: 12,
+    backgroundColor: colors.inverseSurface,
+    borderRadius: 16,
+    padding: 24,
+    overflow: 'hidden',
+    shadowColor: colors.onSurface,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 8,
+    gap: 16,
   },
-  star: {
-    fontSize: 28,
-    color: '#ffcc00',
+  decorBlob: {
+    position: 'absolute',
+    right: -32,
+    top: -32,
+    width: 128,
+    height: 128,
+    borderRadius: 64,
+    backgroundColor: `rgba(0, 80, 215, 0.2)`,
   },
-  textContainer: {
-    flex: 1,
+  content: {
+    gap: 4,
   },
   title: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#0D47A1',
-    marginBottom: 2,
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.inverseOnSurface,
+    lineHeight: 28,
   },
   subtitle: {
-    fontSize: 12,
-    color: '#546E7A',
+    fontSize: 16,
+    color: `rgba(195, 198, 215, 0.8)`,
+    lineHeight: 24,
   },
   button: {
-    backgroundColor: '#3a73ff',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    backgroundColor: colors.tertiaryFixed,
+    borderRadius: 8,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 80,
+    paddingHorizontal: 20,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: colors.onSurface,
     fontWeight: '700',
     fontSize: 14,
+    letterSpacing: 0.02 * 14,
   },
 });

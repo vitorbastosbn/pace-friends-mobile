@@ -1,114 +1,255 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../../theme/colors';
 import type { ItemStatus, TrailItem } from '../types/trail.types';
 
 interface TrailItemCardProps {
   item: TrailItem;
 }
 
-const STATUS_CONFIG: Record<ItemStatus, { icon: string; color: string; bgColor: string }> = {
-  COMPLETED: { icon: '✓', color: '#16a766', bgColor: '#E8F5E9' },
-  IN_PROGRESS: { icon: '●', color: '#3a73ff', bgColor: '#E3F0FF' },
-  LOCKED: { icon: '🔒', color: '#9E9E9E', bgColor: '#F5F5F5' },
-};
-
 export function TrailItemCard({ item }: TrailItemCardProps) {
-  const config = STATUS_CONFIG[item.status];
+  const isCompleted = item.status === 'COMPLETED';
+  const isCurrent = item.status === 'IN_PROGRESS';
+  const isLocked = item.status === 'LOCKED';
 
   return (
-    <View style={[styles.card, { backgroundColor: config.bgColor }]}>
-      <View style={[styles.iconContainer, { borderColor: config.color }]}>
-        <Text style={[styles.icon, { color: config.color }]}>{config.icon}</Text>
-      </View>
-      <View style={styles.content}>
-        {item.status === 'IN_PROGRESS' && (
-          <View style={styles.nextMissionBadge}>
-            <Text style={styles.nextMissionText}>Próxima missão</Text>
-          </View>
-        )}
-        <Text
-          style={[
-            styles.description,
-            item.status === 'LOCKED' && styles.lockedText,
-          ]}
-        >
-          {item.description}
+    <View style={styles.row}>
+      {/* Circle icon */}
+      <View
+        style={[
+          styles.circle,
+          isCompleted && styles.circleCompleted,
+          isCurrent && styles.circleCurrent,
+          isLocked && styles.circleLocked,
+        ]}
+      >
+        <Text style={[
+          styles.circleIcon,
+          isCompleted && styles.circleIconCompleted,
+          isCurrent && styles.circleIconCurrent,
+          isLocked && styles.circleIconLocked,
+        ]}>
+          {isCompleted ? '✓' : isCurrent ? '▶' : '🔒'}
         </Text>
-        <View style={styles.xpBadge}>
-          <Text style={styles.xpText}>+{item.xpReward} XP</Text>
+      </View>
+
+      {/* Card */}
+      <View
+        style={[
+          styles.card,
+          isCompleted && styles.cardCompleted,
+          isCurrent && styles.cardCurrent,
+          isLocked && styles.cardLocked,
+        ]}
+      >
+        {/* Current mission: left accent bar */}
+        {isCurrent && <View style={styles.accentBar} />}
+
+        <View style={styles.cardInner}>
+          {/* Header row */}
+          <View style={styles.headerRow}>
+            <Text
+              style={[
+                styles.title,
+                isCompleted && styles.titleCompleted,
+                isCurrent && styles.titleCurrent,
+                isLocked && styles.titleLocked,
+              ]}
+            >
+              {item.description}
+            </Text>
+            {isCurrent && (
+              <View style={styles.nextMissionBadge}>
+                <Text style={styles.nextMissionText}>Próxima missão</Text>
+              </View>
+            )}
+          </View>
+
+          {/* XP reward */}
+          <Text style={[styles.xpLabel, isLocked && styles.xpLabelLocked]}>
+            +{item.xpReward} XP
+          </Text>
+
+          {/* CTA button for current */}
+          {isCurrent && (
+            <TouchableOpacity style={styles.startButton} activeOpacity={0.85}>
+              <Text style={styles.startButtonText}>Iniciar Missão  ▶</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-      <Text style={[styles.position, { color: config.color }]}>
-        {item.position}
-      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
+    alignItems: 'flex-start',
+    gap: 16,
   },
-  iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2,
+
+  // --- Circle ---
+  circle: {
+    flexShrink: 0,
+    width: 48,
+    height: 48,
+    borderRadius: 9999,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    shadowColor: colors.onSurface,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  icon: {
-    fontSize: 16,
+  circleCompleted: {
+    backgroundColor: colors.secondaryContainer,
+  },
+  circleCurrent: {
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
+    elevation: 6,
+  },
+  circleLocked: {
+    backgroundColor: colors.surfaceContainerHigh,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  circleIcon: {
+    fontSize: 18,
+  },
+  circleIconCompleted: {
+    color: colors.onSecondaryContainer,
     fontWeight: '700',
   },
-  content: {
-    flex: 1,
+  circleIconCurrent: {
+    color: colors.onPrimary,
+    fontWeight: '700',
   },
-  description: {
-    fontSize: 14,
-    color: '#0D47A1',
-    fontWeight: '500',
+  circleIconLocked: {
+    color: colors.outline,
+    fontSize: 16,
+  },
+
+  // --- Card ---
+  card: {
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 1,
+    overflow: 'hidden',
+    shadowColor: colors.onSurface,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+  cardCompleted: {
+    backgroundColor: colors.surfaceContainerLowest,
+    borderColor: `rgba(195, 198, 215, 0.2)`,
+    opacity: 0.7,
+  },
+  cardCurrent: {
+    backgroundColor: colors.surfaceContainerLowest,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 5,
+  },
+  cardLocked: {
+    backgroundColor: colors.surfaceContainerLow,
+    borderStyle: 'dashed',
+    borderColor: colors.outlineVariant,
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+
+  accentBar: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 4,
+    backgroundColor: colors.primary,
+    borderRadius: 9999,
+  },
+
+  cardInner: {
+    padding: 16,
+    paddingLeft: 20, // extra left padding to clear accent bar on current
+  },
+
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 8,
     marginBottom: 4,
   },
-  lockedText: {
-    color: '#9E9E9E',
+
+  title: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0.02 * 14,
+    color: colors.onSurface,
   },
+  titleCompleted: {
+    textDecorationLine: 'line-through',
+    color: colors.onSurface,
+  },
+  titleCurrent: {
+    color: colors.primary,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+    letterSpacing: 0.05 * 14,
+  },
+  titleLocked: {
+    color: colors.outline,
+  },
+
   nextMissionBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#3a73ff',
-    borderRadius: 6,
+    backgroundColor: colors.primaryContainer,
+    borderRadius: 9999,
     paddingHorizontal: 8,
     paddingVertical: 2,
-    marginBottom: 4,
   },
   nextMissionText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#fff',
+    color: colors.onPrimaryContainer,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  xpBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#ffcc00',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  xpText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0D47A1',
-  },
-  position: {
+
+  xpLabel: {
     fontSize: 12,
-    fontWeight: '700',
-    marginLeft: 8,
-    opacity: 0.5,
+    fontWeight: '600',
+    color: colors.onSurfaceVariant,
+    marginBottom: 4,
+  },
+  xpLabelLocked: {
+    color: colors.outlineVariant,
+  },
+
+  startButton: {
+    marginTop: 12,
+    height: 40,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startButtonText: {
+    color: colors.onPrimary,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 0.02 * 14,
   },
 });
