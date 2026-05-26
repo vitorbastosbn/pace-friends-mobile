@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import type { StreakData } from '../types/streak.types';
 import { WeekProgress } from './WeekProgress';
+import { colors } from '../../../theme/colors';
 
 interface StreakCardProps {
   data: StreakData;
@@ -89,6 +91,12 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
     ? 'Ofensiva zerada. Comece hoje!'
     : `Ofensiva de ${currentStreak} semana${currentStreak !== 1 ? 's' : ''}. ${daysCompletedThisWeek} de ${targetFrequency} dias esta semana.`;
 
+  const subtitleText = isEmpty
+    ? 'Comece hoje e inicie sua ofensiva!'
+    : remainingDays > 0
+    ? 'Voce esta em chamas!'
+    : 'Semana completa! Continue assim!';
+
   return (
     <Pressable
       style={({ pressed }) => [styles.card, pressed && onPress && styles.cardPressed]}
@@ -96,125 +104,154 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
       accessibilityLabel={accessLabel}
       accessibilityRole={onPress ? 'button' : 'none'}
     >
-      <View style={styles.headerRow}>
-        <View style={styles.streakBlock}>
-          <Text style={styles.fireEmoji}>{isEmpty ? '🔥' : '🔥'}</Text>
-          <Text style={[styles.streakCount, isEmpty && styles.streakCountEmpty]}>
-            {currentStreak}
-          </Text>
-          <Text style={styles.streakLabel}>
-            {currentStreak === 1 ? 'semana' : 'semanas'}
-          </Text>
+      {/* Ambient background decoration */}
+      <View style={styles.ambientCircle} pointerEvents="none" />
+
+      {/* Centered content */}
+      <View style={styles.centerContent}>
+        {/* Fire icon with amber glow circle */}
+        <View style={styles.fireIconContainer}>
+          <MaterialIcons name="local-fire-department" size={64} color={colors.tertiary} />
         </View>
 
+        {/* Streak headline + subtitle */}
+        <View style={styles.textGroup}>
+          <Text style={[styles.streakHeadline, isEmpty && styles.streakHeadlineEmpty]}>
+            {isEmpty ? '0 semanas' : `${currentStreak} semana${currentStreak !== 1 ? 's' : ''}`}
+          </Text>
+          <Text style={styles.streakSubtitle}>{subtitleText}</Text>
+        </View>
+
+        {/* XP badge */}
         {xpProgress.potentialXp > 0 && (
           <View style={styles.xpBadge}>
-            <Text style={styles.xpText}>+{xpProgress.potentialXp} XP</Text>
+            <MaterialIcons name="add-circle" size={18} color={colors.tertiary} />
+            <Text style={styles.xpText}>+{xpProgress.potentialXp} XP Potencial</Text>
           </View>
         )}
       </View>
 
-      <WeekProgress
-        daysCompleted={daysCompletedThisWeek}
-        targetDays={targetFrequency}
-      />
-
-      {isEmpty ? (
-        <Text style={styles.emptyHint}>Comece hoje e inicie sua ofensiva!</Text>
-      ) : remainingDays > 0 ? (
-        <Text style={styles.remainingText}>
-          Faltam {remainingDays} dia{remainingDays !== 1 ? 's' : ''} para completar a semana
-        </Text>
-      ) : (
-        <Text style={styles.completedText}>Semana completa! Continue assim!</Text>
-      )}
+      {/* Week calendar section with top divider */}
+      <View style={styles.calendarSection}>
+        <View style={styles.calendarHeader}>
+          <Text style={styles.calendarTitle}>Semana Atual</Text>
+          <Text style={styles.calendarSubtitle}>{daysCompletedThisWeek} de 7 dias</Text>
+        </View>
+        <WeekProgress
+          daysCompleted={daysCompletedThisWeek}
+          targetDays={targetFrequency}
+        />
+      </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#0D47A1',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: '#081C34',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#E8EDF5',
-    gap: 12,
+    borderColor: colors.surfaceContainerLow,
+    overflow: 'hidden',
   },
   cardPressed: {
-    backgroundColor: '#F0F4FF',
+    backgroundColor: colors.surfaceContainerLow,
+  },
+  ambientCircle: {
+    position: 'absolute',
+    right: -32,
+    top: -32,
+    width: 128,
+    height: 128,
+    borderRadius: 64,
+    backgroundColor: colors.tertiaryFixed,
+    opacity: 0.1,
+  },
+  centerContent: {
+    alignItems: 'center',
+    gap: 16,
+  },
+  fireIconContainer: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: 'rgba(208,166,0,0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textGroup: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  streakHeadline: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.onSurface,
+    lineHeight: 36,
+    textAlign: 'center',
+  },
+  streakHeadlineEmpty: {
+    color: colors.onSurfaceVariant,
+  },
+  streakSubtitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: colors.onSurfaceVariant,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  xpBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.tertiaryFixed,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+  },
+  xpText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.tertiary,
+    letterSpacing: 0.02 * 14,
+  },
+  calendarSection: {
+    marginTop: 32,
+    paddingTop: 24,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(195,198,215,0.3)',
+    gap: 16,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  calendarTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.onSurface,
+    letterSpacing: 0.02 * 14,
+  },
+  calendarSubtitle: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.05 * 12,
   },
   errorCard: {
     alignItems: 'center',
     gap: 8,
   },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  streakBlock: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 4,
-  },
-  fireEmoji: {
-    fontSize: 24,
-    lineHeight: 28,
-  },
-  streakCount: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#0D47A1',
-    lineHeight: 36,
-  },
-  streakCountEmpty: {
-    color: '#78909C',
-  },
-  streakLabel: {
-    fontSize: 14,
-    fontWeight: '400',
-    color: '#78909C',
-  },
-  xpBadge: {
-    backgroundColor: '#E3F2FD',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  xpText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#0D47A1',
-    letterSpacing: 0.3,
-  },
-  emptyHint: {
-    fontSize: 13,
-    color: '#78909C',
-    textAlign: 'center',
-    fontWeight: '400',
-  },
-  remainingText: {
-    fontSize: 13,
-    color: '#546E7A',
-    textAlign: 'center',
-    fontWeight: '400',
-  },
-  completedText: {
-    fontSize: 13,
-    color: '#2E7D32',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
   errorText: {
     fontSize: 14,
-    color: '#D32F2F',
+    color: colors.error,
     textAlign: 'center',
     fontWeight: '400',
   },
@@ -222,16 +259,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#0D47A1',
+    borderWidth: 1,
+    borderColor: colors.primary,
   },
   retryButtonPressed: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: colors.surfaceContainerLow,
   },
   retryText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#0D47A1',
+    color: colors.primary,
   },
   skeletonRow: {
     flexDirection: 'row',
@@ -242,13 +279,13 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#E8EDF5',
+    backgroundColor: colors.surfaceContainerHigh,
   },
   skeletonCounter: {
     width: 64,
     height: 32,
     borderRadius: 8,
-    backgroundColor: '#E8EDF5',
+    backgroundColor: colors.surfaceContainerHigh,
   },
   skeletonBarWrap: {
     width: '100%',
@@ -257,13 +294,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#E8EDF5',
+    backgroundColor: colors.surfaceContainerHigh,
   },
   skeletonXp: {
     width: 80,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#E8EDF5',
+    backgroundColor: colors.surfaceContainerHigh,
     alignSelf: 'center',
   },
 });

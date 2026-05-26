@@ -1,65 +1,70 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { colors } from '../../../theme/colors';
 
 interface WeekProgressProps {
   daysCompleted: number;
   targetDays: number;
 }
 
-export function WeekProgress({ daysCompleted, targetDays }: WeekProgressProps) {
-  const isComplete = daysCompleted >= targetDays;
+const DAY_LABELS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D'];
 
+export function WeekProgress({ daysCompleted, targetDays }: WeekProgressProps) {
   return (
     <View style={styles.container} accessibilityRole="none">
-      <View style={styles.bubblesRow}>
-        {Array.from({ length: targetDays }).map((_, index) => {
-          const filled = index < daysCompleted;
-          const bubbleColor = filled
-            ? isComplete
-              ? '#2E7D32'
-              : '#0D47A1'
-            : '#FDE8E8';
-
-          return (
+      {DAY_LABELS.map((label, index) => {
+        const filled = index < daysCompleted;
+        return (
+          <View key={index} style={styles.dayColumn}>
+            <Text style={styles.dayLabel}>{label}</Text>
             <View
-              key={index}
-              style={[styles.bubble, { backgroundColor: bubbleColor }]}
+              style={[styles.dayCircle, filled ? styles.dayCircleFilled : styles.dayCircleEmpty]}
               accessibilityLabel={`Dia ${index + 1}: ${filled ? 'completo' : 'pendente'}`}
-            />
-          );
-        })}
-      </View>
-      <Text style={[styles.label, !isComplete && styles.labelRisk, isComplete && styles.labelComplete]}>
-        {daysCompleted}/{targetDays} dias
-      </Text>
+            >
+              {filled && (
+                <MaterialIcons name="check" size={20} color={colors.onPrimary} />
+              )}
+            </View>
+          </View>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dayColumn: {
     alignItems: 'center',
     gap: 8,
   },
-  bubblesRow: {
-    flexDirection: 'row',
-    gap: 6,
-    flexWrap: 'wrap',
+  dayLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.05 * 12,
+  },
+  dayCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  bubble: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+  dayCircleFilled: {
+    backgroundColor: colors.primary,
+    shadowColor: '#081C34',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#0D47A1',
-  },
-  labelComplete: {
-    color: '#2E7D32',
-  },
-  labelRisk: {
-    color: '#C62828',
+  dayCircleEmpty: {
+    backgroundColor: colors.surfaceContainerHigh,
+    borderWidth: 2,
+    borderColor: colors.outlineVariant,
   },
 });

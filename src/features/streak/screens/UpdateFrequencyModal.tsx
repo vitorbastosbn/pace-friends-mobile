@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { ProfileServiceError, updateFrequency } from '../../profile/services/profileService';
 import type { UpdateFrequencyResponse } from '../../profile/types/profile.types';
+import { colors } from '../../../theme/colors';
 
 interface UpdateFrequencyModalProps {
   token: string;
@@ -115,11 +116,11 @@ export function UpdateFrequencyModal({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(12, 25, 50, 0.36)',
+    backgroundColor: 'rgba(8,28,52,0.42)',
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.surfaceContainerLowest,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -128,13 +129,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#16324F',
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
   },
   description: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#607D8B',
+    fontSize: 16,
+    lineHeight: 24,
+    color: colors.onSurfaceVariant,
   },
   options: {
     flexDirection: 'row',
@@ -145,25 +147,27 @@ const styles = StyleSheet.create({
     height: 46,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
-    backgroundColor: '#F0F4F8',
+    borderRadius: 8,
+    backgroundColor: colors.surfaceContainerLow,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: colors.outlineVariant,
   },
   optionSelected: {
-    backgroundColor: '#E3F2FD',
-    borderColor: '#0D47A1',
+    backgroundColor: colors.surfaceContainerLow,
+    borderColor: colors.primary,
+    borderWidth: 2,
   },
   optionText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#546E7A',
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.02 * 14,
   },
   optionTextSelected: {
-    color: '#0D47A1',
+    color: colors.primary,
   },
   error: {
-    color: '#C62828',
+    color: colors.error,
     fontSize: 13,
   },
   actions: {
@@ -177,22 +181,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#D8E1EA',
+    borderColor: colors.outlineVariant,
   },
   secondaryText: {
-    color: '#546E7A',
+    color: colors.onSurfaceVariant,
     fontWeight: '600',
+    fontSize: 14,
   },
   primary: {
     flex: 1,
     paddingVertical: 14,
     alignItems: 'center',
     borderRadius: 12,
-    backgroundColor: '#0D47A1',
+    backgroundColor: colors.primary,
   },
   primaryText: {
-    color: '#FFFFFF',
+    color: colors.onPrimary,
     fontWeight: '700',
+    fontSize: 14,
   },
   disabled: {
     opacity: 0.6,

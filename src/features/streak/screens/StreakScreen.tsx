@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { StreakCard, StreakCardError } from '../components/StreakCard';
-import { WeekProgress } from '../components/WeekProgress';
 import { XpDisplay } from '../components/XpDisplay';
 import { useStreak } from '../hooks/useStreak';
 import { UpdateFrequencyModal } from './UpdateFrequencyModal';
+import { colors } from '../../../theme/colors';
 import type { UpdateFrequencyResponse } from '../../profile/types/profile.types';
 
 interface StreakScreenProps {
@@ -33,9 +34,15 @@ export function StreakScreen({ token }: StreakScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          Ofensiva
-        </Text>
+        <View style={styles.headerLeft}>
+          <MaterialIcons name="local-fire-department" size={24} color={colors.primary} />
+          <Text style={styles.headerTitle} accessibilityRole="header">
+            Ofensiva
+          </Text>
+        </View>
+        <View style={styles.headerRight}>
+          <MaterialIcons name="notifications-none" size={24} color={colors.onSurfaceVariant} />
+        </View>
       </View>
 
       <ScrollView
@@ -44,7 +51,7 @@ export function StreakScreen({ token }: StreakScreenProps) {
       >
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0D47A1" accessibilityLabel="Carregando ofensiva" />
+            <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Carregando ofensiva" />
           </View>
         )}
 
@@ -56,57 +63,42 @@ export function StreakScreen({ token }: StreakScreenProps) {
           <>
             <StreakCard data={streak} />
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Progresso da Semana</Text>
-              <View style={styles.weekProgressContainer}>
-                <WeekProgress
-                  daysCompleted={streak.daysCompletedThisWeek}
-                  targetDays={streak.targetFrequency}
-                />
-              </View>
-            </View>
+            <XpDisplay
+              progress={streak.xpProgress}
+              completed={streak.remainingDays === 0}
+              lastResult={streak.lastResult}
+              targetFrequency={streak.targetFrequency}
+              daysCompletedThisWeek={streak.daysCompletedThisWeek}
+            />
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>XP Potencial</Text>
-              <XpDisplay
-                progress={streak.xpProgress}
-                completed={streak.remainingDays === 0}
-                lastResult={streak.lastResult}
-              />
-            </View>
+            <Pressable
+              style={({ pressed }) => [
+                styles.frequencyButton,
+                pressed && styles.frequencyButtonPressed,
+              ]}
+              onPress={() => setShowFrequencyModal(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Alterar frequencia semanal"
+            >
+              <MaterialIcons name="settings" size={20} color={colors.primary} />
+              <Text style={styles.frequencyButtonText}>Alterar frequencia</Text>
+            </Pressable>
 
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Resumo</Text>
-              <View style={styles.summaryRow}>
-                <View style={styles.summaryItem}>
-                  <Text style={styles.summaryValue}>{streak.currentStreak}</Text>
-                  <Text style={styles.summaryLabel}>Ofensiva atual</Text>
-                </View>
-                <View style={styles.summaryDivider} />
-                <View style={styles.summaryItem}>
-                  <Text style={styles.summaryValue}>{streak.targetFrequency}x</Text>
-                  <Text style={styles.summaryLabel}>Meta semanal</Text>
-                </View>
-                <View style={styles.summaryDivider} />
-                <View style={styles.summaryItem}>
-                  <Text style={styles.summaryValue}>{streak.daysCompletedThisWeek}</Text>
-                  <Text style={styles.summaryLabel}>Dias feitos</Text>
-                </View>
+            {frequencyFeedback ? (
+              <Text style={styles.feedbackText}>{frequencyFeedback}</Text>
+            ) : null}
+
+            <View style={styles.bentoGrid}>
+              <View style={styles.bentoItemPrimary}>
+                <MaterialIcons name="bolt" size={24} color={colors.primary} />
+                <Text style={styles.bentoLabelPrimary}>Proximo Marco</Text>
+                <Text style={styles.bentoValuePrimary}>30 Dias</Text>
               </View>
-              <Pressable
-                style={({ pressed }) => [
-                  styles.frequencyButton,
-                  pressed && styles.frequencyButtonPressed,
-                ]}
-                onPress={() => setShowFrequencyModal(true)}
-                accessibilityRole="button"
-                accessibilityLabel="Alterar frequencia semanal"
-              >
-                <Text style={styles.frequencyButtonText}>Alterar frequencia</Text>
-              </Pressable>
-              {frequencyFeedback ? (
-                <Text style={styles.feedbackText}>{frequencyFeedback}</Text>
-              ) : null}
+              <View style={styles.bentoItemSecondary}>
+                <MaterialIcons name="military-tech" size={24} color={colors.secondary} />
+                <Text style={styles.bentoLabelSecondary}>Conquistas</Text>
+                <Text style={styles.bentoValue}>{streak.currentStreak} semanas</Text>
+              </View>
             </View>
           </>
         )}
@@ -127,96 +119,111 @@ export function StreakScreen({ token }: StreakScreenProps) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8EDF5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    height: 64,
+    backgroundColor: colors.background,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   headerTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
-    color: '#0D47A1',
-    letterSpacing: 0.3,
+    color: colors.primary,
+    lineHeight: 32,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
   content: {
-    padding: 24,
-    gap: 8,
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 32,
+    gap: 16,
   },
   loadingContainer: {
     paddingTop: 40,
     alignItems: 'center',
   },
-  section: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#E8EDF5',
-    shadowColor: '#0D47A1',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-    gap: 12,
-    marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#37474F',
-    letterSpacing: 0.2,
-  },
-  weekProgressContainer: {
-    paddingVertical: 4,
-  },
-  summaryRow: {
+  frequencyButton: {
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-  },
-  summaryItem: {
-    alignItems: 'center',
-    gap: 4,
-    flex: 1,
-  },
-  summaryValue: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0D47A1',
-  },
-  summaryLabel: {
-    fontSize: 11,
-    color: '#78909C',
-    fontWeight: '400',
-    textAlign: 'center',
-  },
-  summaryDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#E8EDF5',
-  },
-  frequencyButton: {
-    marginTop: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-    borderRadius: 10,
+    justifyContent: 'center',
+    gap: 8,
     borderWidth: 1,
-    borderColor: '#0D47A1',
+    borderColor: colors.primary,
+    borderRadius: 12,
   },
   frequencyButtonPressed: {
-    backgroundColor: '#E3F2FD',
+    backgroundColor: colors.surfaceContainerLow,
   },
   frequencyButtonText: {
+    fontSize: 14,
     fontWeight: '600',
-    color: '#0D47A1',
+    color: colors.primary,
+    letterSpacing: 0.02 * 14,
   },
   feedbackText: {
     fontSize: 13,
     lineHeight: 18,
-    color: '#2E7D32',
+    color: colors.secondary,
+    textAlign: 'center',
+  },
+  bentoGrid: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  bentoItemPrimary: {
+    flex: 1,
+    backgroundColor: 'rgba(219,225,255,0.4)',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(219,225,255,0.6)',
+    gap: 4,
+  },
+  bentoItemSecondary: {
+    flex: 1,
+    backgroundColor: 'rgba(125,251,177,0.1)',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(125,251,177,0.2)',
+    gap: 4,
+  },
+  bentoLabelPrimary: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.primary,
+    letterSpacing: 0.05 * 12,
+  },
+  bentoLabelSecondary: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.secondary,
+    letterSpacing: 0.05 * 12,
+  },
+  bentoValue: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
+  },
+  bentoValuePrimary: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
   },
 });
