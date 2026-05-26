@@ -19,6 +19,7 @@ import {
   type RegisterActivityFormErrors,
 } from '../validation/challengeValidation';
 import { calculateLivePace, parseDurationToSeconds } from '../mappers/challengeMapper';
+import { notifyStreakChanged } from '../../streak/services/streakEvents';
 
 interface RegisterActivityScreenProps {
   token: string;
@@ -73,6 +74,7 @@ export function RegisterActivityScreen({
     });
 
     if (success) {
+      notifyStreakChanged();
       router.back();
     } else {
       setSubmitError('Nao foi possivel registrar a atividade. Tente novamente.');

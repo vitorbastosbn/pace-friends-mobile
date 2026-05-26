@@ -1,4 +1,5 @@
-import type { StreakData } from '../types/streak.types';
+import { mapStreakResponse } from '../mappers/streakMapper';
+import type { Streak, StreakResponse, WeekRange } from '../types/streak.types';
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://10.0.2.2:8080/api/v1';
@@ -45,7 +46,7 @@ function authHeaders(token: string): HeadersInit {
   };
 }
 
-export async function getStreak(token: string): Promise<StreakData> {
+export async function getStreak(token: string): Promise<Streak> {
   let response: Response;
   try {
     response = await fetch(`${API_BASE_URL}/streak`, {
@@ -57,5 +58,15 @@ export async function getStreak(token: string): Promise<StreakData> {
       'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
     );
   }
-  return handleResponse<StreakData>(response);
+  return mapStreakResponse(await handleResponse<StreakResponse>(response));
+}
+
+export function getWeekRange(today = new Date()): WeekRange {
+  const start = new Date(today);
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - start.getDay());
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  return { start, end };
 }

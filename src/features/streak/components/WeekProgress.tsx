@@ -17,7 +17,7 @@ export function WeekProgress({ daysCompleted, targetDays }: WeekProgressProps) {
             ? isComplete
               ? '#2E7D32'
               : '#0D47A1'
-            : '#E8EDF5';
+            : '#FDE8E8';
 
           return (
             <View
@@ -28,7 +28,7 @@ export function WeekProgress({ daysCompleted, targetDays }: WeekProgressProps) {
           );
         })}
       </View>
-      <Text style={[styles.label, isComplete && styles.labelComplete]}>
+      <Text style={[styles.label, !isComplete && styles.labelRisk, isComplete && styles.labelComplete]}>
         {daysCompleted}/{targetDays} dias
       </Text>
     </View>
@@ -58,5 +58,8 @@ const styles = StyleSheet.create({
   },
   labelComplete: {
     color: '#2E7D32',
+  },
+  labelRisk: {
+    color: '#C62828',
   },
 });

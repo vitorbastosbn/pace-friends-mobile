@@ -13,9 +13,11 @@ import {
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
   ChallengeServiceError,
+  deleteFriendChallenge,
   getChallengeRanking,
   getCheckIns,
   getFriendChallengeDetail,
+  leaveFriendChallenge,
   rejectCheckIn,
 } from '../services/challengeService';
 import type {
@@ -101,6 +103,7 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
   const [rankingState, setRankingState] = useState<'loading' | 'success' | 'error' | 'empty'>('loading');
   const [checkIns, setCheckIns] = useState<CheckInWithUserNameResponse[]>([]);
   const [checkInsState, setCheckInsState] = useState<'loading' | 'success' | 'error' | 'empty'>('loading');
+  const [destructiveActionPending, setDestructiveActionPending] = useState(false);
 
   const load = useCallback(async () => {
     setLoadState('loading');
@@ -188,6 +191,27 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
 
   const { title, challengeType, goalValue, startDate, endDate, status, inviteCode, participantCount, maxParticipants, participants, myRole } = challenge;
 
+  async function runDestructiveAction(action: 'leave' | 'delete') {
+    setDestructiveActionPending(true);
+    try {
+      if (action === 'leave') {
+        await leaveFriendChallenge(token, id);
+      } else {
+        await deleteFriendChallenge(token, id);
+      }
+      router.back();
+    } catch (err) {
+      const message =
+        err instanceof ChallengeServiceError
+          ? err.message
+          : 'Nao foi possivel concluir esta acao.';
+      Alert.alert('Erro', message);
+      void load();
+    } finally {
+      setDestructiveActionPending(false);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
@@ -244,9 +268,12 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
               styles.infoValue,
               status === 'ACTIVE' ? styles.statusActive :
               status === 'AUDIT' ? styles.statusAudit :
+              status === 'DELETED' ? styles.statusDeleted :
               styles.statusInactive,
             ]}>
-              {status === 'ACTIVE' ? 'Ativo' : status === 'AUDIT' ? 'Em auditoria' : 'Encerrado'}
+              {status === 'ACTIVE' ? 'Ativo' :
+               status === 'AUDIT' ? 'Em auditoria' :
+               status === 'DELETED' ? 'Excluido' : 'Finalizado'}
             </Text>
           </View>
           <View style={styles.infoRow}>
@@ -254,6 +281,48 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
             <Text style={styles.infoValue}>{participantCount}/{maxParticipants}</Text>
           </View>
         </View>
+
+        {status === 'ACTIVE' && myRole === 'MEMBER' && (
+          <Pressable
+            style={({ pressed }) => [styles.leaveButton, pressed && styles.destructiveButtonPressed]}
+            disabled={destructiveActionPending}
+            accessibilityRole="button"
+            accessibilityLabel="Sair do desafio"
+            onPress={() => {
+              Alert.alert(
+                'Sair do desafio',
+                'Seus check-ins deixarao de contar no ranking. Se entrar novamente, voce comecara do zero.',
+                [
+                  { text: 'Cancelar', style: 'cancel' },
+                  { text: 'Sair', style: 'destructive', onPress: () => void runDestructiveAction('leave') },
+                ]
+              );
+            }}
+          >
+            <Text style={styles.leaveButtonText}>Sair do desafio</Text>
+          </Pressable>
+        )}
+
+        {myRole === 'CREATOR' && status !== 'DELETED' && (
+          <Pressable
+            style={({ pressed }) => [styles.deleteButton, pressed && styles.destructiveButtonPressed]}
+            disabled={destructiveActionPending}
+            accessibilityRole="button"
+            accessibilityLabel="Excluir desafio"
+            onPress={() => {
+              Alert.alert(
+                'Excluir desafio',
+                'Este desafio desaparecera para todos e nao podera ser recuperado.',
+                [
+                  { text: 'Cancelar', style: 'cancel' },
+                  { text: 'Excluir', style: 'destructive', onPress: () => void runDestructiveAction('delete') },
+                ]
+              );
+            }}
+          >
+            <Text style={styles.deleteButtonText}>Excluir desafio</Text>
+          </Pressable>
+        )}
 
         {/* Ranking */}
         <View style={styles.section}>
@@ -455,6 +524,7 @@ const styles = StyleSheet.create({
   infoValue: { fontSize: 14, color: '#263238', fontWeight: '700' },
   statusActive: { color: '#16a766' },
   statusAudit: { color: '#F59E0B' },
+  statusDeleted: { color: '#C62828' },
   statusInactive: { color: '#9E9E9E' },
   inviteCard: {
     backgroundColor: '#FFFDE7',
@@ -518,6 +588,26 @@ const styles = StyleSheet.create({
   },
   checkInButtonPressed: { backgroundColor: '#128a53' },
   checkInButtonText: { fontSize: 16, fontWeight: '700', color: '#FFFFFF' },
+  leaveButton: {
+    borderWidth: 1,
+    borderColor: '#C62828',
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  leaveButtonText: { fontSize: 14, fontWeight: '700', color: '#C62828' },
+  deleteButton: {
+    backgroundColor: '#FDECEC',
+    borderWidth: 1,
+    borderColor: '#C62828',
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  deleteButtonText: { fontSize: 14, fontWeight: '700', color: '#C62828' },
+  destructiveButtonPressed: { opacity: 0.7 },
   rankingRow: {
     backgroundColor: '#FFFFFF',
     borderRadius: 10,

@@ -29,9 +29,13 @@ const OBJECTIVE_OPTIONS: PickerOption<UserObjective>[] = [
 ];
 
 const FREQUENCY_OPTIONS: PickerOption<WeeklyFrequency>[] = [
+  { label: '1x por semana', value: 'ONE' },
+  { label: '2x por semana', value: 'TWO' },
   { label: '3x por semana', value: 'THREE' },
   { label: '4x por semana', value: 'FOUR' },
   { label: '5x por semana', value: 'FIVE' },
+  { label: '6x por semana', value: 'SIX' },
+  { label: '7x por semana', value: 'SEVEN' },
 ];
 
 interface ProfileScreenProps {

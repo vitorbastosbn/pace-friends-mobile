@@ -10,6 +10,7 @@ const STATUS_LABEL: Record<ChallengeStatus, string> = {
   ACTIVE: 'Ativo',
   AUDIT: 'Em auditoria',
   FINISHED: 'Finalizado',
+  DELETED: 'Excluido',
   COMPLETED: 'Concluido',
   CANCELLED: 'Cancelado',
 };
@@ -18,6 +19,7 @@ const BADGE_BG: Record<ChallengeStatus, string> = {
   ACTIVE: '#E3F2FD',
   AUDIT: '#FFF7E6',
   FINISHED: '#F5F5F5',
+  DELETED: '#FDECEC',
   COMPLETED: '#E8F5E9',
   CANCELLED: '#F5F5F5',
 };
@@ -26,6 +28,7 @@ const BADGE_TEXT_COLOR: Record<ChallengeStatus, string> = {
   ACTIVE: '#0D47A1',
   AUDIT: '#F59E0B',
   FINISHED: '#9E9E9E',
+  DELETED: '#C62828',
   COMPLETED: '#2E7D32',
   CANCELLED: '#9E9E9E',
 };

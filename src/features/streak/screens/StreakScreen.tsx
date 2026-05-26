@@ -1,7 +1,11 @@
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StreakCard, StreakCardError } from '../components/StreakCard';
 import { WeekProgress } from '../components/WeekProgress';
+import { XpDisplay } from '../components/XpDisplay';
 import { useStreak } from '../hooks/useStreak';
+import { UpdateFrequencyModal } from './UpdateFrequencyModal';
+import type { UpdateFrequencyResponse } from '../../profile/types/profile.types';
 
 interface StreakScreenProps {
   token: string;
@@ -9,6 +13,22 @@ interface StreakScreenProps {
 
 export function StreakScreen({ token }: StreakScreenProps) {
   const { streak, isLoading, error, reload } = useStreak(token);
+  const [showFrequencyModal, setShowFrequencyModal] = useState(false);
+  const [frequencyFeedback, setFrequencyFeedback] = useState<string | null>(null);
+
+  function handleFrequencySaved(response: UpdateFrequencyResponse) {
+    const date = new Date(`${response.effectiveFrom}T00:00:00`);
+    const effectiveDate = date.toLocaleDateString('pt-BR');
+    setFrequencyFeedback(
+      `Nova frequencia: ${response.weeklyFrequency} dias por semana a partir de ${effectiveDate}.`
+    );
+    Alert.alert(
+      'Frequencia atualizada',
+      `Sua nova meta vale a partir de ${effectiveDate}.`
+    );
+    setShowFrequencyModal(false);
+    reload();
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -48,19 +68,11 @@ export function StreakScreen({ token }: StreakScreenProps) {
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>XP Potencial</Text>
-              <View style={styles.xpContainer}>
-                <Text style={styles.xpValue}>+{streak.potentialXp}</Text>
-                <Text style={styles.xpUnit}>XP</Text>
-              </View>
-              {streak.remainingDays > 0 ? (
-                <Text style={styles.xpHint}>
-                  Complete mais {streak.remainingDays} dia{streak.remainingDays !== 1 ? 's' : ''} esta semana para ganhar {streak.potentialXp} XP.
-                </Text>
-              ) : (
-                <Text style={[styles.xpHint, styles.xpHintSuccess]}>
-                  Parabens! Voce atingiu sua meta semanal.
-                </Text>
-              )}
+              <XpDisplay
+                progress={streak.xpProgress}
+                completed={streak.remainingDays === 0}
+                lastResult={streak.lastResult}
+              />
             </View>
 
             <View style={styles.section}>
@@ -81,10 +93,33 @@ export function StreakScreen({ token }: StreakScreenProps) {
                   <Text style={styles.summaryLabel}>Dias feitos</Text>
                 </View>
               </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.frequencyButton,
+                  pressed && styles.frequencyButtonPressed,
+                ]}
+                onPress={() => setShowFrequencyModal(true)}
+                accessibilityRole="button"
+                accessibilityLabel="Alterar frequencia semanal"
+              >
+                <Text style={styles.frequencyButtonText}>Alterar frequencia</Text>
+              </Pressable>
+              {frequencyFeedback ? (
+                <Text style={styles.feedbackText}>{frequencyFeedback}</Text>
+              ) : null}
             </View>
           </>
         )}
       </ScrollView>
+      {streak ? (
+        <UpdateFrequencyModal
+          token={token}
+          visible={showFrequencyModal}
+          currentFrequency={streak.targetFrequency}
+          onClose={() => setShowFrequencyModal(false)}
+          onSaved={handleFrequencySaved}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -138,32 +173,6 @@ const styles = StyleSheet.create({
   weekProgressContainer: {
     paddingVertical: 4,
   },
-  xpContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 4,
-  },
-  xpValue: {
-    fontSize: 40,
-    fontWeight: '700',
-    color: '#0D47A1',
-    lineHeight: 44,
-  },
-  xpUnit: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#0D47A1',
-  },
-  xpHint: {
-    fontSize: 13,
-    color: '#78909C',
-    fontWeight: '400',
-    lineHeight: 18,
-  },
-  xpHintSuccess: {
-    color: '#2E7D32',
-    fontWeight: '600',
-  },
   summaryRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -189,5 +198,25 @@ const styles = StyleSheet.create({
     width: 1,
     height: 40,
     backgroundColor: '#E8EDF5',
+  },
+  frequencyButton: {
+    marginTop: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#0D47A1',
+  },
+  frequencyButtonPressed: {
+    backgroundColor: '#E3F2FD',
+  },
+  frequencyButtonText: {
+    fontWeight: '600',
+    color: '#0D47A1',
+  },
+  feedbackText: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#2E7D32',
   },
 });

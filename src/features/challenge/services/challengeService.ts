@@ -256,6 +256,70 @@ export async function getFriendChallengeDetail(
   return handleResponse<import('../types/challenge.types').FriendChallengeResponse>(response);
 }
 
+async function handleFriendChallengeCommandResponse(
+  response: Response,
+  fallbackMessage: string
+): Promise<void> {
+  if (response.ok) {
+    return;
+  }
+
+  let errorMessage = '';
+  try {
+    const body = (await response.json()) as { message?: string };
+    errorMessage = body.message ?? '';
+  } catch {
+    // Use a focused fallback when the error body is absent.
+  }
+
+  if (response.status === 401) {
+    throw new ChallengeServiceError('Sessao expirada. Faca login novamente.', 401);
+  }
+  if (response.status === 403) {
+    throw new ChallengeServiceError(errorMessage || 'Voce nao pode realizar esta acao.', 403);
+  }
+  if (response.status === 404) {
+    throw new ChallengeServiceError(errorMessage || 'Desafio nao encontrado.', 404);
+  }
+  if (response.status === 400 || response.status === 409) {
+    throw new ChallengeServiceError(errorMessage || fallbackMessage, response.status);
+  }
+  throw new ChallengeServiceError(
+    errorMessage || `${fallbackMessage} (HTTP ${response.status}).`,
+    response.status
+  );
+}
+
+export async function leaveFriendChallenge(token: string, challengeId: string): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/friend-challenges/${challengeId}/participants/me`, {
+      method: 'DELETE',
+      headers: authHeaders(token),
+    });
+  } catch {
+    throw new ChallengeServiceError(
+      'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+    );
+  }
+  await handleFriendChallengeCommandResponse(response, 'Nao foi possivel sair deste desafio.');
+}
+
+export async function deleteFriendChallenge(token: string, challengeId: string): Promise<void> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/friend-challenges/${challengeId}`, {
+      method: 'DELETE',
+      headers: authHeaders(token),
+    });
+  } catch {
+    throw new ChallengeServiceError(
+      'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+    );
+  }
+  await handleFriendChallengeCommandResponse(response, 'Nao foi possivel excluir este desafio.');
+}
+
 export async function registerCheckIn(
   token: string,
   challengeId: string,

@@ -82,12 +82,12 @@ export function StreakCardError({ message, onRetry }: StreakCardErrorProps) {
 }
 
 export function StreakCard({ data, onPress }: StreakCardProps) {
-  const { currentStreak, targetFrequency, daysCompletedThisWeek, remainingDays, potentialXp } =
+  const { currentStreak, targetFrequency, daysCompletedThisWeek, remainingDays, xpProgress } =
     data;
   const isEmpty = currentStreak === 0;
   const accessLabel = isEmpty
     ? 'Ofensiva zerada. Comece hoje!'
-    : `Ofensiva de ${currentStreak} dia${currentStreak !== 1 ? 's' : ''}. ${daysCompletedThisWeek} de ${targetFrequency} dias esta semana.`;
+    : `Ofensiva de ${currentStreak} semana${currentStreak !== 1 ? 's' : ''}. ${daysCompletedThisWeek} de ${targetFrequency} dias esta semana.`;
 
   return (
     <Pressable
@@ -103,13 +103,13 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
             {currentStreak}
           </Text>
           <Text style={styles.streakLabel}>
-            {currentStreak === 1 ? 'dia' : 'dias'}
+            {currentStreak === 1 ? 'semana' : 'semanas'}
           </Text>
         </View>
 
-        {potentialXp > 0 && (
+        {xpProgress.potentialXp > 0 && (
           <View style={styles.xpBadge}>
-            <Text style={styles.xpText}>+{potentialXp} XP</Text>
+            <Text style={styles.xpText}>+{xpProgress.potentialXp} XP</Text>
           </View>
         )}
       </View>

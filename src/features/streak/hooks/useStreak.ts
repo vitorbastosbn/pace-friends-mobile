@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { StreakServiceError, getStreak as apiGetStreak } from '../services/streakService';
+import { subscribeToStreakChanges } from '../services/streakEvents';
 import type { StreakData } from '../types/streak.types';
 
 type LoadState = 'idle' | 'loading' | 'success' | 'error';
@@ -37,6 +38,8 @@ export function useStreak(token: string): UseStreakResult {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => subscribeToStreakChanges(load), [load]);
 
   return {
     streak,

@@ -1,5 +1,6 @@
 import type {
   ProfileData,
+  UpdateFrequencyResponse,
   UpdateProfileRequest,
 } from '../types/profile.types';
 
@@ -88,4 +89,36 @@ export async function updateProfile(
 
   const data = (await response.json()) as ProfileData;
   return data;
+}
+
+export async function updateFrequency(
+  token: string,
+  weeklyFrequency: number
+): Promise<UpdateFrequencyResponse> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/users/me/frequency`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ weeklyFrequency }),
+    });
+  } catch {
+    throw new ProfileServiceError(
+      'Nao foi possivel conectar ao servidor. Verifique sua conexao.'
+    );
+  }
+
+  if (!response.ok) {
+    if (response.status === 400) {
+      throw new ProfileServiceError('Escolha uma frequencia entre 1 e 7 dias.', 400);
+    }
+    throw new ProfileServiceError(
+      `Erro ao atualizar frequencia (HTTP ${response.status}).`,
+      response.status
+    );
+  }
+  return (await response.json()) as UpdateFrequencyResponse;
 }

@@ -1,5 +1,5 @@
-export type ChallengeStatus = 'ACTIVE' | 'AUDIT' | 'FINISHED' | 'COMPLETED' | 'CANCELLED';
-export type CheckInStatus = 'VALID' | 'REJECTED';
+export type ChallengeStatus = 'ACTIVE' | 'AUDIT' | 'FINISHED' | 'DELETED' | 'COMPLETED' | 'CANCELLED';
+export type CheckInStatus = 'VALID' | 'REJECTED' | 'REMOVED_BY_LEAVE' | 'REMOVED_BY_DELETE';
 
 export interface ChallengeResponse {
   id: string;

@@ -4,7 +4,14 @@ export type UserObjective =
   | 'IMPROVE_FITNESS'
   | 'MAINTAIN';
 
-export type WeeklyFrequency = 'THREE' | 'FOUR' | 'FIVE';
+export type WeeklyFrequency =
+  | 'ONE'
+  | 'TWO'
+  | 'THREE'
+  | 'FOUR'
+  | 'FIVE'
+  | 'SIX'
+  | 'SEVEN';
 
 export interface ProfileStats {
   totalXp: number;
@@ -25,6 +32,11 @@ export interface ProfileData {
 export interface UpdateProfileRequest {
   objective: UserObjective;
   weeklyFrequency: WeeklyFrequency;
+}
+
+export interface UpdateFrequencyResponse {
+  weeklyFrequency: number;
+  effectiveFrom: string;
 }
 
 export interface ProfileUIModel {

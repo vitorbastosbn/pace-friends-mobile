@@ -7,7 +7,15 @@ const VALID_OBJECTIVES: UserObjective[] = [
   'MAINTAIN',
 ];
 
-const VALID_FREQUENCIES: WeeklyFrequency[] = ['THREE', 'FOUR', 'FIVE'];
+const VALID_FREQUENCIES: WeeklyFrequency[] = [
+  'ONE',
+  'TWO',
+  'THREE',
+  'FOUR',
+  'FIVE',
+  'SIX',
+  'SEVEN',
+];
 
 export function isValidObjective(value: string): value is UserObjective {
   return VALID_OBJECTIVES.includes(value as UserObjective);
