@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { CheckIn } from '../types/challenge.types';
 import { formatDate } from '../mappers/challengeMapper';
+import { colors } from '../../../theme/colors';
 
 interface CheckInListProps {
   checkIns: CheckIn[];
@@ -19,10 +20,13 @@ export function CheckInList({ checkIns, canReject, onReject }: CheckInListProps)
         const removed = checkIn.status === 'REMOVED_BY_CREATOR';
         return (
           <View key={checkIn.id} style={styles.row}>
+            <View style={styles.avatarWrapper}>
+              <Text style={styles.avatarEmoji}>🏃</Text>
+            </View>
             <View style={styles.info}>
               <Text selectable style={styles.name}>{checkIn.participantName}</Text>
               <Text selectable style={styles.meta}>
-                {checkIn.distanceKm.toFixed(1)} km - {formatDate(checkIn.date)}
+                {checkIn.distanceKm.toFixed(1)} km · {formatDate(checkIn.date)}
               </Text>
             </View>
             {removed ? (
@@ -46,55 +50,72 @@ export function CheckInList({ checkIns, canReject, onReject }: CheckInListProps)
 
 const styles = StyleSheet.create({
   list: {
-    gap: 8,
+    gap: 12,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    padding: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: '#E7EDF5',
+    padding: 16,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    shadowColor: colors.onSurface,
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
+  },
+  avatarWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 9999,
+    backgroundColor: colors.secondaryContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  avatarEmoji: {
+    fontSize: 18,
   },
   info: {
     flex: 1,
-    gap: 3,
+    gap: 2,
   },
   name: {
-    color: '#15263B',
+    color: colors.onSurface,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   meta: {
-    color: '#718397',
+    color: colors.onSurfaceVariant,
     fontSize: 12,
-    fontVariant: ['tabular-nums'],
+    fontWeight: '500',
+    letterSpacing: 0.05,
   },
   rejectButton: {
-    borderWidth: 1,
-    borderColor: '#D44351',
-    borderRadius: 999,
-    paddingVertical: 7,
+    borderWidth: 1.5,
+    borderColor: colors.error,
+    borderRadius: 9999,
+    paddingVertical: 6,
     paddingHorizontal: 12,
   },
   rejectLabel: {
-    color: '#B32632',
+    color: colors.error,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   removed: {
-    color: '#B32632',
+    color: colors.error,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   pressed: {
     opacity: 0.7,
   },
   empty: {
-    color: '#718397',
+    color: colors.onSurfaceVariant,
     fontSize: 14,
     lineHeight: 20,
   },

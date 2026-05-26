@@ -5,6 +5,7 @@ import { ChallengeCard } from '../components/ChallengeCard';
 import { JoinByCodeModal } from '../components/JoinByCodeModal';
 import { useChallengeOverview } from '../hooks/useChallengeOverview';
 import type { FriendChallenge } from '../types/challenge.types';
+import { colors } from '../../../theme/colors';
 
 interface ChallengesScreenProps {
   token: string;
@@ -31,7 +32,10 @@ function FriendSection({
 }) {
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <View style={styles.sectionHeading}>
+        <Text style={styles.sectionTitle}>{title}</Text>
+        <Text style={styles.seeAll}>Ver todos</Text>
+      </View>
       {challenges.length === 0 ? (
         <EmptyState message={emptyMessage} />
       ) : (
@@ -105,31 +109,33 @@ export function ChallengesScreen({ token }: ChallengesScreenProps) {
         contentInsetAdjustmentBehavior="automatic"
         style={styles.screen}
       >
+        {/* Header */}
         <View style={styles.hero}>
-          <View style={styles.heroCopy}>
-            <Text style={styles.title}>Desafios</Text>
-            <Text selectable style={styles.subtitle}>
-              Evolua sozinho ou dispute com seus amigos.
-            </Text>
-          </View>
-          <View style={styles.actions}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.push('/(app)/challenges/friend-create')}
-              style={({ pressed }) => [styles.primaryButton, pressed ? styles.pressed : null]}
-            >
-              <Text style={styles.primaryButtonLabel}>Criar desafio</Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => setIsJoinOpen(true)}
-              style={({ pressed }) => [styles.secondaryButton, pressed ? styles.pressed : null]}
-            >
-              <Text style={styles.secondaryButtonLabel}>Entrar por codigo</Text>
-            </Pressable>
-          </View>
+          <Text style={styles.title}>Desafios</Text>
+          <Text selectable style={styles.subtitle}>
+            Evolua sozinho ou dispute com seus amigos.
+          </Text>
         </View>
 
+        {/* Action buttons */}
+        <View style={styles.actions}>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push('/(app)/challenges/friend-create')}
+            style={({ pressed }) => [styles.primaryButton, pressed ? styles.pressed : null]}
+          >
+            <Text style={styles.primaryButtonLabel}>Criar desafio</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => setIsJoinOpen(true)}
+            style={({ pressed }) => [styles.secondaryButton, pressed ? styles.pressed : null]}
+          >
+            <Text style={styles.secondaryButtonLabel}>Entrar por codigo</Text>
+          </Pressable>
+        </View>
+
+        {/* Individual section */}
         <View style={styles.section}>
           <View style={styles.sectionHeading}>
             <Text style={styles.sectionTitle}>Individual</Text>
@@ -138,9 +144,11 @@ export function ChallengesScreen({ token }: ChallengesScreenProps) {
                 accessibilityRole="button"
                 onPress={() => router.push('/(app)/challenges/create')}
               >
-                <Text style={styles.inlineAction}>Criar</Text>
+                <Text style={styles.seeAll}>Criar</Text>
               </Pressable>
-            ) : null}
+            ) : (
+              <Text style={styles.seeAll}>Ver todos</Text>
+            )}
           </View>
           {individualChallenge ? (
             <Pressable
@@ -155,6 +163,7 @@ export function ChallengesScreen({ token }: ChallengesScreenProps) {
           )}
         </View>
 
+        {/* Social sections */}
         <FriendSection
           challenges={created}
           emptyMessage="Nenhum desafio criado por voce."
@@ -182,64 +191,66 @@ export function ChallengesScreen({ token }: ChallengesScreenProps) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#F5F8FD',
+    backgroundColor: colors.background,
   },
   content: {
-    gap: 26,
+    gap: 32,
     paddingHorizontal: 20,
     paddingTop: 24,
-    paddingBottom: 36,
+    paddingBottom: 40,
   },
   hero: {
-    gap: 20,
-  },
-  heroCopy: {
-    gap: 6,
+    gap: 12,
   },
   title: {
-    color: '#10233B',
-    fontSize: 30,
-    fontWeight: '800',
+    color: colors.onSurface,
+    fontSize: 28,
+    fontWeight: '700',
+    lineHeight: 36,
   },
   subtitle: {
-    color: '#60758B',
-    fontSize: 15,
-    lineHeight: 21,
+    color: colors.onSurfaceVariant,
+    fontSize: 16,
+    lineHeight: 24,
   },
   actions: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
   },
   primaryButton: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-    borderRadius: 14,
-    backgroundColor: '#1D4ED8',
+    paddingVertical: 14,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+    minHeight: 56,
   },
   primaryButtonLabel: {
-    color: '#FFFFFF',
+    color: colors.onPrimary,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   secondaryButton: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-    borderWidth: 1,
-    borderColor: '#D6E0ED',
-    borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceContainerLowest,
+    minHeight: 56,
   },
   secondaryButtonLabel: {
-    color: '#1D4ED8',
+    color: colors.primary,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   section: {
-    gap: 12,
+    gap: 16,
   },
   sectionHeading: {
     flexDirection: 'row',
@@ -247,33 +258,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    color: '#586D84',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.9,
-    textTransform: 'uppercase',
+    color: colors.onSurface,
+    fontSize: 20,
+    fontWeight: '600',
+    lineHeight: 28,
   },
-  inlineAction: {
-    color: '#1D4ED8',
-    fontSize: 13,
-    fontWeight: '700',
+  seeAll: {
+    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.05,
   },
   emptyCard: {
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E2E9F3',
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
+    borderColor: colors.surfaceContainerLow,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   emptyText: {
-    color: '#718398',
+    color: colors.onSurfaceVariant,
     fontSize: 14,
     lineHeight: 20,
   },
   skeleton: {
     height: 126,
-    borderRadius: 18,
-    backgroundColor: '#E6EDF6',
+    borderRadius: 12,
+    backgroundColor: colors.surfaceContainerHigh,
   },
   skeletonHeader: {
     height: 88,
@@ -284,16 +295,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     padding: 28,
-    backgroundColor: '#F5F8FD',
+    backgroundColor: colors.background,
   },
   errorTitle: {
-    color: '#15263B',
+    color: colors.onSurface,
     fontSize: 18,
     fontWeight: '700',
     textAlign: 'center',
   },
   errorText: {
-    color: '#667A90',
+    color: colors.onSurfaceVariant,
     fontSize: 14,
     lineHeight: 20,
     textAlign: 'center',

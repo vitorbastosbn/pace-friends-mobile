@@ -1,15 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { ChallengeType, RankingEntry } from '../types/challenge.types';
+import { colors } from '../../../theme/colors';
 
 interface RankingListProps {
   challengeType: ChallengeType;
   entries: RankingEntry[];
 }
 
-const MEDALS: Record<number, { symbol: string; tone: string; background: string }> = {
-  1: { symbol: '1', tone: '#9A6500', background: '#FFE7A7' },
-  2: { symbol: '2', tone: '#5C6572', background: '#E4EAF1' },
-  3: { symbol: '3', tone: '#884A27', background: '#F6D1B5' },
+const MEDALS: Record<number, { tone: string; background: string; border: string }> = {
+  1: { tone: colors.tertiary, background: colors.tertiaryFixed, border: colors.tertiaryContainer },
+  2: { tone: colors.onSurfaceVariant, background: colors.surfaceContainerHigh, border: colors.outlineVariant },
+  3: { tone: '#884A27', background: '#F6D1B5', border: '#E8AA88' },
 };
 
 function formatScore(type: ChallengeType, score: number): string {
@@ -37,10 +38,24 @@ export function RankingList({ challengeType, entries }: RankingListProps) {
       {entries.map((entry) => {
         const medal = MEDALS[entry.position];
         return (
-          <View key={entry.userId} style={[styles.row, medal ? styles.topRow : null]}>
-            <View style={[styles.position, medal ? { backgroundColor: medal.background } : null]}>
-              <Text selectable style={[styles.positionText, medal ? { color: medal.tone } : null]}>
-                {medal?.symbol ?? entry.position}
+          <View
+            key={entry.userId}
+            style={[
+              styles.row,
+              medal && entry.position === 1 ? styles.firstPlace : null,
+            ]}
+          >
+            <View
+              style={[
+                styles.position,
+                medal ? { backgroundColor: medal.background, borderColor: medal.border } : null,
+              ]}
+            >
+              <Text
+                selectable
+                style={[styles.positionText, medal ? { color: medal.tone } : null]}
+              >
+                {entry.position}º
               </Text>
             </View>
             <View style={styles.info}>
@@ -59,34 +74,42 @@ export function RankingList({ challengeType, entries }: RankingListProps) {
 
 const styles = StyleSheet.create({
   list: {
-    gap: 8,
+    gap: 12,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    padding: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderCurve: 'continuous',
-    borderWidth: 1,
-    borderColor: '#E7EDF5',
+    padding: 16,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    shadowColor: colors.onSurface,
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
   },
-  topRow: {
-    backgroundColor: '#FCFDFE',
+  firstPlace: {
+    backgroundColor: colors.surfaceContainerLow,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 2,
   },
   position: {
-    width: 34,
-    height: 34,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 999,
-    backgroundColor: '#EFF3F7',
+    borderRadius: 9999,
+    backgroundColor: colors.surfaceContainerHigh,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
   },
   positionText: {
-    color: '#5E7186',
-    fontSize: 14,
-    fontWeight: '800',
+    color: colors.onSurfaceVariant,
+    fontSize: 13,
+    fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
   info: {
@@ -94,22 +117,24 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   name: {
-    color: '#15263B',
+    color: colors.onSurface,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   meta: {
-    color: '#718397',
+    color: colors.onSurfaceVariant,
     fontSize: 12,
+    fontWeight: '400',
   },
   score: {
-    color: '#1B49CE',
+    color: colors.primary,
     fontSize: 14,
     fontWeight: '700',
     fontVariant: ['tabular-nums'],
   },
   empty: {
-    color: '#718397',
+    color: colors.onSurfaceVariant,
     fontSize: 14,
     lineHeight: 20,
   },

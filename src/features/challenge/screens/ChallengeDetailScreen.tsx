@@ -13,6 +13,7 @@ import type { ActivityResponse } from '../types/challenge.types';
 import { useChallengeDetail } from '../hooks/useChallengeDetail';
 import { ChallengeCard } from '../components/ChallengeCard';
 import { ActivityItem } from '../components/ActivityItem';
+import { colors } from '../../../theme/colors';
 
 interface ChallengeDetailScreenProps {
   token: string;
@@ -112,7 +113,10 @@ export function ChallengeDetailScreen({
           )}
 
           {/* Activities section title */}
-          <Text style={styles.sectionTitle}>Atividades</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Atividades</Text>
+            <Text style={styles.seeAll}>Ver Todas</Text>
+          </View>
         </View>
       ) : null}
     </>
@@ -186,86 +190,94 @@ export function ChallengeDetailScreen({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8EDF5',
-    backgroundColor: '#F8FAFF',
+    paddingHorizontal: 20,
+    height: 56,
+    backgroundColor: colors.background,
   },
   backButton: {
-    minWidth: 48,
-    minHeight: 48,
-    alignItems: 'flex-start',
+    width: 40,
+    height: 40,
+    borderRadius: 9999,
+    alignItems: 'center',
     justifyContent: 'center',
   },
   backText: {
     fontSize: 28,
-    color: '#0D47A1',
+    color: colors.primary,
     fontWeight: '400',
     lineHeight: 32,
   },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '700',
-    color: '#0D47A1',
-    letterSpacing: 0.3,
+    color: colors.primary,
   },
   headerSpacer: {
-    minWidth: 48,
+    width: 40,
   },
   listContent: {
-    paddingBottom: 32,
+    paddingBottom: 40,
   },
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
+    gap: 16,
   },
   registerButton: {
-    height: 52,
-    backgroundColor: '#0D47A1',
+    height: 56,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 8,
-    marginBottom: 24,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   registerButtonPressed: {
-    backgroundColor: '#0A3880',
+    opacity: 0.85,
   },
   registerButtonText: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.25,
+    fontWeight: '600',
+    color: colors.onPrimary,
+    letterSpacing: 0.02,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#546E7A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    marginBottom: 8,
-    paddingHorizontal: 4,
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
+  },
+  seeAll: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    letterSpacing: 0.02,
   },
   skeletonCardLarge: {
-    height: 140,
-    backgroundColor: '#E0E8F0',
-    borderRadius: 14,
-    marginBottom: 16,
+    height: 160,
+    backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: 12,
   },
   skeletonRow: {
-    height: 56,
-    backgroundColor: '#E8EDF5',
-    borderRadius: 8,
-    marginBottom: 8,
+    height: 72,
+    backgroundColor: colors.surfaceContainerLow,
+    borderRadius: 12,
   },
   emptyActivities: {
     paddingHorizontal: 20,
@@ -274,7 +286,7 @@ const styles = StyleSheet.create({
   },
   emptyActivitiesText: {
     fontSize: 14,
-    color: '#78909C',
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
   },
   errorContainer: {
@@ -286,22 +298,25 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 15,
-    color: '#D32F2F',
+    color: colors.error,
     textAlign: 'center',
     lineHeight: 22,
   },
   retryButton: {
     paddingHorizontal: 32,
     paddingVertical: 14,
-    backgroundColor: '#0D47A1',
+    backgroundColor: colors.primary,
     borderRadius: 12,
+    minHeight: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   retryButtonPressed: {
-    backgroundColor: '#0A3880',
+    opacity: 0.85,
   },
   retryButtonText: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontWeight: '600',
+    color: colors.onPrimary,
   },
 });

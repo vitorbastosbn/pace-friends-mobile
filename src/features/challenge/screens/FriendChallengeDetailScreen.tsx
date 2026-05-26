@@ -6,6 +6,7 @@ import { RankingList } from '../components/RankingList';
 import { ChallengeServiceError, friendChallengeService } from '../services/challengeService';
 import type { ChallengeDetail, ChallengeStatus, ChallengeType } from '../types/challenge.types';
 import { formatDate } from '../mappers/challengeMapper';
+import { colors } from '../../../theme/colors';
 
 interface FriendChallengeDetailScreenProps {
   id: string;
@@ -26,6 +27,15 @@ const STATUS_LABEL: Record<ChallengeStatus, string> = {
   DELETED: 'Excluido',
   COMPLETED: 'Concluido',
   CANCELLED: 'Cancelado',
+};
+
+const STATUS_BADGE: Record<ChallengeStatus, { backgroundColor: string; color: string }> = {
+  ACTIVE: { backgroundColor: colors.secondaryContainer, color: colors.onSecondaryContainer },
+  AUDIT: { backgroundColor: colors.tertiaryFixed, color: colors.tertiary },
+  FINISHED: { backgroundColor: colors.surfaceContainerHigh, color: colors.onSurfaceVariant },
+  DELETED: { backgroundColor: colors.errorContainer, color: colors.error },
+  COMPLETED: { backgroundColor: colors.secondaryContainer, color: colors.onSecondaryContainer },
+  CANCELLED: { backgroundColor: colors.surfaceContainerHigh, color: colors.onSurfaceVariant },
 };
 
 function DetailSkeleton() {
@@ -161,55 +171,63 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
       contentInsetAdjustmentBehavior="automatic"
       style={styles.screen}
     >
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => router.back()}
-        style={({ pressed }) => [styles.backButton, pressed ? styles.pressed : null]}
-      >
-        <Text style={styles.backLabel}>Voltar</Text>
-      </Pressable>
-
-      <View style={styles.heading}>
-        <Text style={styles.title}>{detail.title}</Text>
-        <View style={styles.status}>
-          <Text selectable style={styles.statusLabel}>{STATUS_LABEL[detail.status]}</Text>
+      {/* Header */}
+      <View style={styles.headerRow}>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.back()}
+          style={({ pressed }) => [styles.backButton, pressed ? styles.pressed : null]}
+          hitSlop={8}
+        >
+          <Text style={styles.backText}>{'‹'}</Text>
+        </Pressable>
+        <Text style={styles.headerTitle} numberOfLines={1}>{detail.title}</Text>
+        <View style={[styles.statusBadge, { backgroundColor: STATUS_BADGE[detail.status].backgroundColor }]}>
+          <Text style={[styles.statusLabel, { color: STATUS_BADGE[detail.status].color }]}>
+            {STATUS_LABEL[detail.status]}
+          </Text>
         </View>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.sectionTitle}>Informacoes</Text>
-        <View style={styles.infoRow}>
-          <Text selectable style={styles.infoLabel}>Tipo</Text>
-          <Text selectable style={styles.infoValue}>{TYPE_LABEL[detail.challengeType]}</Text>
+      {/* Hero card */}
+      <View style={styles.heroCard}>
+        <View style={styles.heroGrid}>
+          <View style={styles.heroCell}>
+            <Text style={styles.heroCellLabel}>Tipo</Text>
+            <Text style={styles.heroCellValue}>{TYPE_LABEL[detail.challengeType]}</Text>
+          </View>
+          <View style={[styles.heroCell, styles.heroCellRight]}>
+            <Text style={styles.heroCellLabel}>Periodo</Text>
+            <Text style={styles.heroCellValue}>
+              {formatDate(detail.startDate)} — {formatDate(detail.endDate)}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.heroDivider} />
+        <View style={styles.participantsRow}>
+          <Text style={styles.participantsLabel}>Participantes</Text>
+          <Text style={styles.participantsValue}>
+            {detail.participantCount}
+            <Text style={styles.participantsMax}>/{detail.maxParticipants}</Text>
+          </Text>
         </View>
         {detail.goalValue != null ? (
-          <View style={styles.infoRow}>
-            <Text selectable style={styles.infoLabel}>Meta</Text>
-            <Text selectable style={styles.infoValue}>{detail.goalValue}</Text>
+          <View style={styles.participantsRow}>
+            <Text style={styles.participantsLabel}>Meta</Text>
+            <Text style={styles.participantsValue}>{detail.goalValue}</Text>
           </View>
         ) : null}
-        <View style={styles.infoRow}>
-          <Text selectable style={styles.infoLabel}>Periodo</Text>
-          <Text selectable style={styles.infoValue}>
-            {formatDate(detail.startDate)} - {formatDate(detail.endDate)}
-          </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text selectable style={styles.infoLabel}>Participantes</Text>
-          <Text selectable style={styles.infoValue}>
-            {detail.participantCount}/{detail.maxParticipants}
-          </Text>
-        </View>
       </View>
 
+      {/* Actions */}
       <View style={styles.actions}>
         {detail.permissions.canCheckIn ? (
           <Pressable
             accessibilityRole="button"
             onPress={() => router.push(`/(app)/challenges/friend/${id}/register-check-in`)}
-            style={({ pressed }) => [styles.successButton, pressed ? styles.pressed : null]}
+            style={({ pressed }) => [styles.primaryButton, pressed ? styles.pressed : null]}
           >
-            <Text style={styles.successButtonLabel}>Registrar check-in</Text>
+            <Text style={styles.primaryButtonLabel}>Registrar check-in</Text>
           </Pressable>
         ) : null}
         {detail.permissions.canLeave ? (
@@ -232,16 +250,21 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
             <Text style={styles.dangerLabel}>Excluir desafio</Text>
           </Pressable>
         ) : null}
-        {isActing ? <ActivityIndicator color="#1D4ED8" /> : null}
+        {isActing ? <ActivityIndicator color={colors.primary} /> : null}
       </View>
 
+      {/* Ranking */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Ranking</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Classificacao</Text>
+          <Text style={styles.seeAll}>Ver todos</Text>
+        </View>
         <RankingList challengeType={detail.challengeType} entries={detail.ranking} />
       </View>
 
+      {/* Check-ins */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Check-ins</Text>
+        <Text style={styles.sectionTitle}>Check-ins Recentes</Text>
         <CheckInList
           canReject={detail.permissions.canRejectCheckIns}
           checkIns={detail.checkIns}
@@ -249,6 +272,7 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
         />
       </View>
 
+      {/* Invite code */}
       {detail.userRole === 'CREATOR' ? (
         <View style={styles.invite}>
           <Text style={styles.inviteLabel}>Codigo para convidar amigos</Text>
@@ -262,131 +286,189 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#F5F8FD',
+    backgroundColor: colors.background,
   },
   content: {
-    gap: 20,
-    padding: 20,
+    gap: 24,
+    paddingTop: 16,
     paddingBottom: 40,
+    paddingHorizontal: 20,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   backButton: {
-    alignSelf: 'flex-start',
-    paddingVertical: 6,
-    paddingHorizontal: 2,
+    width: 40,
+    height: 40,
+    borderRadius: 9999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
-  backLabel: {
-    color: '#1D4ED8',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  heading: {
-    gap: 12,
-  },
-  title: {
-    color: '#112238',
+  backText: {
     fontSize: 28,
-    fontWeight: '800',
-    lineHeight: 34,
+    color: colors.primary,
+    fontWeight: '400',
+    lineHeight: 32,
   },
-  status: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 11,
-    paddingVertical: 6,
-    backgroundColor: '#EDF3FF',
-    borderRadius: 999,
+  headerTitle: {
+    flex: 1,
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary,
+    lineHeight: 32,
+  },
+  statusBadge: {
+    borderRadius: 9999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    flexShrink: 0,
   },
   statusLabel: {
-    color: '#1D4ED8',
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
+    letterSpacing: 0.05,
   },
-  infoCard: {
-    gap: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#E5ECF5',
-    borderRadius: 18,
-    backgroundColor: '#FFFFFF',
+  heroCard: {
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: colors.onSurface,
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    gap: 16,
   },
-  infoRow: {
+  heroGrid: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  heroCell: {
+    flex: 1,
+    gap: 4,
+  },
+  heroCellRight: {
+    alignItems: 'flex-end',
+  },
+  heroCellLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.05,
+  },
+  heroCellValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.onSurface,
+    letterSpacing: 0.02,
+  },
+  heroDivider: {
+    height: 1,
+    backgroundColor: 'rgba(195, 198, 215, 0.3)',
+  },
+  participantsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    alignItems: 'center',
   },
-  infoLabel: {
-    color: '#6B7E94',
-    fontSize: 13,
+  participantsLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.onSurface,
+    letterSpacing: 0.02,
   },
-  infoValue: {
-    color: '#15263B',
-    fontSize: 13,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
+  participantsValue: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.primary,
+    lineHeight: 28,
+  },
+  participantsMax: {
+    color: colors.onSurfaceVariant,
+    fontWeight: '400',
+    fontSize: 16,
   },
   actions: {
-    gap: 10,
+    gap: 12,
   },
-  successButton: {
+  primaryButton: {
     alignItems: 'center',
-    paddingVertical: 14,
-    borderRadius: 14,
-    backgroundColor: '#128252',
+    justifyContent: 'center',
+    minHeight: 56,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
   },
-  successButtonLabel: {
-    color: '#FFFFFF',
+  primaryButtonLabel: {
+    color: colors.onPrimary,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   dangerOutline: {
     alignItems: 'center',
-    paddingVertical: 13,
-    borderWidth: 1,
-    borderColor: '#D74955',
-    borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    minHeight: 56,
+    borderWidth: 1.5,
+    borderColor: colors.error,
+    borderRadius: 12,
   },
   dangerLabel: {
-    color: '#B32632',
+    color: colors.error,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   section: {
-    gap: 12,
+    gap: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   sectionTitle: {
-    color: '#586D84',
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
+  },
+  seeAll: {
     fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
+    fontWeight: '500',
+    color: colors.primary,
+    letterSpacing: 0.05,
   },
   invite: {
     alignItems: 'center',
     gap: 8,
-    padding: 18,
-    borderRadius: 18,
-    backgroundColor: '#FFF7E6',
+    padding: 24,
+    borderRadius: 12,
+    backgroundColor: colors.tertiaryFixed,
   },
   inviteLabel: {
-    color: '#786341',
+    color: colors.tertiary,
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '500',
+    letterSpacing: 0.05,
   },
   inviteCode: {
-    color: '#9A6500',
-    fontSize: 23,
-    fontWeight: '800',
-    letterSpacing: 4,
+    color: colors.tertiary,
+    fontSize: 24,
+    fontWeight: '700',
+    letterSpacing: 6,
   },
   skeleton: {
-    borderRadius: 18,
-    backgroundColor: '#E6EDF6',
+    borderRadius: 12,
+    backgroundColor: colors.surfaceContainerHigh,
   },
   skeletonTitle: {
     height: 64,
   },
   skeletonCard: {
-    height: 148,
+    height: 160,
   },
   skeletonSection: {
     height: 128,
@@ -397,28 +479,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     padding: 28,
-    backgroundColor: '#F5F8FD',
+    backgroundColor: colors.background,
   },
   errorTitle: {
-    color: '#15263B',
+    color: colors.onSurface,
     fontSize: 18,
     fontWeight: '700',
   },
   errorText: {
-    color: '#667A90',
+    color: colors.onSurfaceVariant,
     fontSize: 14,
     textAlign: 'center',
-  },
-  primaryButton: {
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-    borderRadius: 14,
-    backgroundColor: '#1D4ED8',
-  },
-  primaryButtonLabel: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
   },
   pressed: {
     opacity: 0.76,

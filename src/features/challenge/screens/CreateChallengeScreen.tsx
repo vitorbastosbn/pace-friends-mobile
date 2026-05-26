@@ -18,6 +18,7 @@ import {
   validateCreateChallenge,
   type CreateChallengeFormErrors,
 } from '../validation/challengeValidation';
+import { colors } from '../../../theme/colors';
 
 interface CreateChallengeScreenProps {
   token: string;
@@ -89,10 +90,18 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {/* Form intro */}
+          <View style={styles.formIntro}>
+            <Text style={styles.formTitle}>Personalize sua meta</Text>
+            <Text style={styles.formSubtitle}>
+              Defina um objetivo claro para manter sua motivacao em alta.
+            </Text>
+          </View>
+
           {/* Title */}
           <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>
-              Titulo <Text style={styles.required}>*</Text>
+              Titulo do Desafio <Text style={styles.required}>*</Text>
             </Text>
             <TextInput
               style={[styles.input, formErrors.title ? styles.inputError : null]}
@@ -101,8 +110,8 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
                 setTitle(v);
                 clearFieldError('title');
               }}
-              placeholder="Ex: Correr 50km em dezembro"
-              placeholderTextColor="#B0BEC5"
+              placeholder="Ex: Correr 50 km em junho"
+              placeholderTextColor={colors.outline}
               returnKeyType="next"
               maxLength={100}
               accessible
@@ -119,7 +128,7 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
           {/* Goal distance */}
           <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>
-              Meta de distancia (km) <Text style={styles.required}>*</Text>
+              Meta de Distancia (km) <Text style={styles.required}>*</Text>
             </Text>
             <TextInput
               style={[
@@ -132,7 +141,7 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
                 clearFieldError('goalDistanceKm');
               }}
               placeholder="Ex: 50"
-              placeholderTextColor="#B0BEC5"
+              placeholderTextColor={colors.outline}
               keyboardType="decimal-pad"
               returnKeyType="next"
               accessible
@@ -149,7 +158,7 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
           {/* Deadline */}
           <View style={styles.fieldGroup}>
             <Text style={styles.fieldLabel}>
-              Prazo (YYYY-MM-DD) <Text style={styles.required}>*</Text>
+              Prazo Final (YYYY-MM-DD) <Text style={styles.required}>*</Text>
             </Text>
             <TextInput
               style={[styles.input, formErrors.deadline ? styles.inputError : null]}
@@ -159,7 +168,7 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
                 clearFieldError('deadline');
               }}
               placeholder="Ex: 2024-12-31"
-              placeholderTextColor="#B0BEC5"
+              placeholderTextColor={colors.outline}
               keyboardType="numbers-and-punctuation"
               returnKeyType="done"
               maxLength={10}
@@ -202,7 +211,7 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
             {isSubmitting ? (
               <ActivityIndicator
                 size="small"
-                color="#FFFFFF"
+                color={colors.onPrimary}
                 accessibilityLabel="Salvando desafio"
               />
             ) : (
@@ -218,7 +227,7 @@ export function CreateChallengeScreen({ token }: CreateChallengeScreenProps) {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
   },
   flex: {
     flex: 1,
@@ -226,107 +235,122 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8EDF5',
-    backgroundColor: '#F8FAFF',
+    paddingHorizontal: 20,
+    height: 56,
+    backgroundColor: colors.background,
   },
   backButton: {
-    minWidth: 48,
-    minHeight: 48,
-    alignItems: 'flex-start',
+    width: 40,
+    height: 40,
+    borderRadius: 9999,
+    alignItems: 'center',
     justifyContent: 'center',
   },
   backText: {
     fontSize: 28,
-    color: '#0D47A1',
+    color: colors.primary,
     fontWeight: '400',
     lineHeight: 32,
   },
   headerTitle: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0D47A1',
-    letterSpacing: 0.3,
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
   },
   headerSpacer: {
-    minWidth: 48,
+    width: 40,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 16,
+    gap: 24,
+  },
+  formIntro: {
+    gap: 4,
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.onSurface,
+    lineHeight: 32,
+  },
+  formSubtitle: {
+    fontSize: 16,
+    color: colors.onSurfaceVariant,
+    lineHeight: 24,
   },
   fieldGroup: {
-    marginBottom: 20,
+    gap: 8,
   },
   fieldLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#546E7A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.02,
+    paddingHorizontal: 4,
   },
   required: {
-    color: '#D32F2F',
+    color: colors.error,
   },
   input: {
-    height: 50,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
+    height: 56,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
     borderWidth: 1.5,
-    borderColor: '#CFD8DC',
-    paddingHorizontal: 14,
-    fontSize: 15,
-    color: '#263238',
+    borderColor: colors.outlineVariant,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: colors.onSurface,
   },
   inputError: {
-    borderColor: '#D32F2F',
+    borderColor: colors.error,
   },
   fieldError: {
     fontSize: 12,
-    color: '#D32F2F',
-    marginTop: 4,
+    color: colors.error,
+    marginTop: 2,
   },
   submitError: {
     fontSize: 14,
-    color: '#D32F2F',
+    color: colors.error,
     textAlign: 'center',
-    marginTop: 8,
     lineHeight: 20,
   },
   actionBlock: {
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     paddingBottom: 32,
     paddingTop: 16,
-    backgroundColor: '#F8FAFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E8EDF5',
+    backgroundColor: colors.background,
   },
   saveButton: {
-    height: 52,
-    backgroundColor: '#0D47A1',
+    height: 56,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: colors.primary,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   saveButtonDisabled: {
     opacity: 0.5,
   },
   saveButtonPressed: {
-    backgroundColor: '#0A3880',
+    opacity: 0.85,
   },
   saveButtonText: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.25,
+    fontWeight: '600',
+    color: colors.onPrimary,
+    letterSpacing: 0.02,
   },
 });

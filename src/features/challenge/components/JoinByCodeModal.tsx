@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ChallengeServiceError, friendChallengeService } from '../services/challengeService';
+import { colors } from '../../../theme/colors';
 
 interface JoinByCodeModalProps {
   token: string;
@@ -48,10 +49,20 @@ export function JoinByCodeModal({ token, visible, onClose, onJoined }: JoinByCod
     <Modal animationType="fade" transparent visible={visible} onRequestClose={close}>
       <View style={styles.overlay}>
         <View accessibilityViewIsModal style={styles.sheet}>
-          <Text style={styles.title}>Entrar por codigo</Text>
-          <Text selectable style={styles.subtitle}>
-            Digite o codigo compartilhado pelo criador do desafio.
-          </Text>
+          {/* Icon header */}
+          <View style={styles.iconRow}>
+            <View style={styles.iconWrapper}>
+              <Text style={styles.iconEmoji}>🔑</Text>
+            </View>
+          </View>
+
+          <View style={styles.textBlock}>
+            <Text style={styles.title}>Entrar por codigo</Text>
+            <Text selectable style={styles.subtitle}>
+              Digite o codigo de 8 caracteres compartilhado pelo criador.
+            </Text>
+          </View>
+
           <TextInput
             accessibilityLabel="Codigo de convite"
             autoCapitalize="characters"
@@ -61,12 +72,16 @@ export function JoinByCodeModal({ token, visible, onClose, onJoined }: JoinByCod
               setCode(value.toUpperCase());
               setError(null);
             }}
-            placeholder="ABCD1234"
-            placeholderTextColor="#A5B2C1"
+            placeholder="________"
+            placeholderTextColor={colors.outlineVariant}
             style={styles.input}
             value={code}
           />
-          {error ? <Text selectable accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
+
+          {error ? (
+            <Text selectable accessibilityRole="alert" style={styles.error}>{error}</Text>
+          ) : null}
+
           <View style={styles.actions}>
             <Pressable
               accessibilityRole="button"
@@ -86,7 +101,7 @@ export function JoinByCodeModal({ token, visible, onClose, onJoined }: JoinByCod
               ]}
             >
               {isSubmitting ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
+                <ActivityIndicator color={colors.onPrimary} size="small" />
               ) : (
                 <Text style={styles.confirmLabel}>Confirmar</Text>
               )}
@@ -102,70 +117,105 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     justifyContent: 'center',
-    padding: 24,
-    backgroundColor: 'rgba(12, 24, 40, 0.42)',
+    paddingHorizontal: 20,
+    backgroundColor: colors.scrim,
   },
   sheet: {
-    gap: 14,
-    padding: 22,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    borderCurve: 'continuous',
+    gap: 16,
+    padding: 24,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    shadowColor: colors.onSurface,
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  iconRow: {
+    alignItems: 'center',
+  },
+  iconWrapper: {
+    width: 64,
+    height: 64,
+    borderRadius: 9999,
+    backgroundColor: 'rgba(46, 106, 246, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconEmoji: {
+    fontSize: 28,
+  },
+  textBlock: {
+    gap: 4,
+    alignItems: 'center',
   },
   title: {
-    color: '#142337',
-    fontSize: 20,
+    color: colors.onSurface,
+    fontSize: 24,
     fontWeight: '700',
+    textAlign: 'center',
+    lineHeight: 32,
   },
   subtitle: {
-    color: '#63758A',
-    fontSize: 14,
-    lineHeight: 20,
+    color: colors.onSurfaceVariant,
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
   },
   input: {
-    height: 54,
-    borderWidth: 1,
-    borderColor: '#D7E0EB',
-    borderRadius: 14,
+    height: 64,
+    backgroundColor: colors.surfaceContainerLow,
+    borderWidth: 2,
+    borderColor: colors.outlineVariant,
+    borderRadius: 12,
     paddingHorizontal: 16,
-    color: '#15263B',
-    fontSize: 20,
+    color: colors.primary,
+    fontSize: 24,
     fontWeight: '700',
-    letterSpacing: 3,
+    letterSpacing: 6,
     textAlign: 'center',
   },
   error: {
-    color: '#B32632',
-    fontSize: 13,
+    color: colors.error,
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   actions: {
-    flexDirection: 'row',
-    gap: 10,
-    paddingTop: 4,
+    flexDirection: 'column',
+    gap: 12,
   },
   cancelButton: {
-    flex: 1,
     alignItems: 'center',
-    paddingVertical: 13,
-    borderRadius: 14,
-    backgroundColor: '#EEF2F7',
+    justifyContent: 'center',
+    minHeight: 56,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
   },
   cancelLabel: {
-    color: '#42566B',
+    color: colors.primary,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   confirmButton: {
-    flex: 1,
     alignItems: 'center',
-    paddingVertical: 13,
-    borderRadius: 14,
-    backgroundColor: '#1D4ED8',
+    justifyContent: 'center',
+    minHeight: 56,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
   confirmLabel: {
-    color: '#FFFFFF',
+    color: colors.onPrimary,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '600',
+    letterSpacing: 0.02,
   },
   disabled: {
     opacity: 0.65,

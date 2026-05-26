@@ -7,6 +7,7 @@ import type {
 } from '../types/challenge.types';
 import { daysRemaining, formatDate } from '../mappers/challengeMapper';
 import { FriendChallengeCard } from './FriendChallengeCard';
+import { colors } from '../../../theme/colors';
 
 interface ChallengeCardProps {
   data: ChallengeProgressResponse | IndividualChallenge | FriendChallenge;
@@ -22,21 +23,21 @@ const STATUS_LABEL: Record<ChallengeStatus, string> = {
 };
 
 const BADGE_BG: Record<ChallengeStatus, string> = {
-  ACTIVE: '#E3F2FD',
-  AUDIT: '#FFF7E6',
-  FINISHED: '#F5F5F5',
-  DELETED: '#FDECEC',
-  COMPLETED: '#E8F5E9',
-  CANCELLED: '#F5F5F5',
+  ACTIVE: colors.secondaryContainer,
+  AUDIT: colors.tertiaryFixed,
+  FINISHED: colors.surfaceContainerHigh,
+  DELETED: colors.errorContainer,
+  COMPLETED: colors.secondaryContainer,
+  CANCELLED: colors.surfaceContainerHigh,
 };
 
 const BADGE_TEXT_COLOR: Record<ChallengeStatus, string> = {
-  ACTIVE: '#0D47A1',
-  AUDIT: '#F59E0B',
-  FINISHED: '#9E9E9E',
-  DELETED: '#C62828',
-  COMPLETED: '#2E7D32',
-  CANCELLED: '#9E9E9E',
+  ACTIVE: colors.onSecondaryContainer,
+  AUDIT: colors.tertiary,
+  FINISHED: colors.onSurfaceVariant,
+  DELETED: colors.error,
+  COMPLETED: colors.onSecondaryContainer,
+  CANCELLED: colors.onSurfaceVariant,
 };
 
 export function ChallengeCard({ data }: ChallengeCardProps) {
@@ -53,14 +54,24 @@ export function ChallengeCard({ data }: ChallengeCardProps) {
     <View style={styles.card}>
       {/* Header row */}
       <View style={styles.headerRow}>
-        <Text
-          style={styles.title}
-          numberOfLines={2}
-          accessibilityRole="text"
-        >
-          {title}
-        </Text>
+        <View style={styles.iconWrapper}>
+          <Text style={styles.iconEmoji}>🏃</Text>
+        </View>
+        <View style={styles.titleGroup}>
+          <Text style={styles.title} numberOfLines={2} accessibilityRole="text">
+            {title}
+          </Text>
+          <Text style={styles.subtitle}>Meta individual de quilometragem</Text>
+        </View>
         <StatusBadge status={status} />
+      </View>
+
+      {/* Progress info */}
+      <View style={styles.progressHeader}>
+        <Text style={styles.progressPct}>{clampedPct.toFixed(0)}% completo</Text>
+        <Text style={styles.progressText}>
+          {progressKm.toFixed(1)} / {goalDistanceKm.toFixed(1)} km
+        </Text>
       </View>
 
       {/* Progress bar */}
@@ -70,14 +81,6 @@ export function ChallengeCard({ data }: ChallengeCardProps) {
         accessibilityValue={{ min: 0, max: 100, now: clampedPct }}
       >
         <View style={[styles.progressFill, { width: progressWidth }]} />
-      </View>
-
-      {/* Progress label */}
-      <View style={styles.progressRow}>
-        <Text style={styles.progressText}>
-          {progressKm.toFixed(1)} / {goalDistanceKm.toFixed(1)} km
-        </Text>
-        <Text style={styles.progressPct}>{clampedPct.toFixed(0)}%</Text>
       </View>
 
       {/* Deadline */}
@@ -107,74 +110,93 @@ function StatusBadge({ status }: { status: ChallengeStatus }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#0D47A1',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    padding: 24,
+    shadowColor: colors.onSurface,
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#E8EDF5',
+    borderColor: 'rgba(195, 198, 215, 0.3)',
+    gap: 12,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 12,
     gap: 8,
   },
-  title: {
+  iconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: colors.surfaceContainerLow,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  iconEmoji: {
+    fontSize: 24,
+  },
+  titleGroup: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1A237E',
-    lineHeight: 22,
+    gap: 2,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
+  },
+  subtitle: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.05,
   },
   badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
     flexShrink: 0,
   },
   badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.05,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+  progressPct: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    letterSpacing: 0.02,
+  },
+  progressText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.05,
   },
   progressTrack: {
     height: 8,
-    backgroundColor: '#E8EDF5',
+    backgroundColor: colors.surfaceContainer,
     borderRadius: 4,
     overflow: 'hidden',
-    marginBottom: 8,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#0D47A1',
+    backgroundColor: colors.secondary,
     borderRadius: 4,
-  },
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  progressText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#37474F',
-  },
-  progressPct: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#0D47A1',
   },
   deadlineText: {
     fontSize: 12,
-    color: '#78909C',
+    color: colors.onSurfaceVariant,
     fontWeight: '400',
   },
 });
