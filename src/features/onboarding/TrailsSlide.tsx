@@ -5,6 +5,7 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/typography';
 import { PaginationDots } from './PaginationDots';
+import { onboardingSharedStyles as shared } from './onboardingSharedStyles';
 
 type Props = {
   onStart: () => void;
@@ -12,7 +13,7 @@ type Props = {
 
 export function TrailsSlide({ onStart }: Props) {
   return (
-    <View style={styles.screen}>
+    <View style={shared.screen}>
       <ExpoStatusBar style="dark" />
 
       <View style={styles.illustrationArea}>
@@ -44,23 +45,23 @@ export function TrailsSlide({ onStart }: Props) {
         </View>
       </View>
 
-      <View style={styles.textBlock}>
-        <Text style={styles.heading}>Evolua sua trilha</Text>
-        <Text style={styles.body}>
+      <View style={shared.textBlock}>
+        <Text style={shared.heading}>Evolua sua trilha</Text>
+        <Text style={shared.body}>
           Suba de nível completando missões e desbloqueando conquistas exclusivas. Sua jornada rumo ao bem-estar começa agora!
         </Text>
       </View>
 
       <PaginationDots total={3} current={2} />
 
-      <View style={styles.footer}>
+      <View style={shared.footer}>
         <Pressable
-          style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
+          style={({ pressed }) => [shared.primaryButton, pressed && shared.primaryButtonPressed]}
           onPress={onStart}
           accessibilityRole="button"
           accessibilityLabel="Começar"
         >
-          <Text style={styles.primaryButtonText}>Começar</Text>
+          <Text style={shared.primaryButtonText}>Começar</Text>
           <MaterialIcons name="arrow-forward" size={20} color={colors.onPrimary} />
         </Pressable>
       </View>
@@ -69,13 +70,6 @@ export function TrailsSlide({ onStart }: Props) {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 56,
-    paddingBottom: 40,
-  },
   illustrationArea: {
     alignItems: 'center',
     height: 300,
@@ -185,46 +179,5 @@ const styles = StyleSheet.create({
     color: colors.onPrimary,
     fontFamily: fonts.displayBold,
     fontSize: 11,
-  },
-  textBlock: {
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 32,
-  },
-  heading: {
-    color: colors.onSurface,
-    fontFamily: fonts.displayBold,
-    fontSize: 28,
-    letterSpacing: -0.25,
-    lineHeight: 36,
-    textAlign: 'center',
-  },
-  body: {
-    color: colors.onSurfaceVariant,
-    fontFamily: fonts.bodyRegular,
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  footer: {
-    marginTop: 'auto',
-  },
-  primaryButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 14,
-    flexDirection: 'row',
-    gap: 8,
-    height: 56,
-    justifyContent: 'center',
-  },
-  primaryButtonPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
-  },
-  primaryButtonText: {
-    color: colors.onPrimary,
-    fontFamily: fonts.displayBold,
-    fontSize: 16,
   },
 });

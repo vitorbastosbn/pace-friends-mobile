@@ -5,6 +5,7 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { colors } from '../../theme/colors';
 import { fonts } from '../../theme/typography';
 import { PaginationDots } from './PaginationDots';
+import { onboardingSharedStyles as shared } from './onboardingSharedStyles';
 
 type Props = {
   onNext: () => void;
@@ -13,7 +14,7 @@ type Props = {
 
 export function StreakSlide({ onNext, onSkip }: Props) {
   return (
-    <View style={styles.screen}>
+    <View style={shared.screen}>
       <ExpoStatusBar style="dark" />
 
       <View style={styles.header}>
@@ -40,9 +41,9 @@ export function StreakSlide({ onNext, onSkip }: Props) {
         </View>
       </View>
 
-      <View style={styles.textBlock}>
-        <Text style={styles.heading}>Mantenha o ritmo</Text>
-        <Text style={styles.body}>
+      <View style={[shared.textBlock, styles.textBlockStreak]}>
+        <Text style={shared.heading}>Mantenha o ritmo</Text>
+        <Text style={shared.body}>
           Escolha sua frequência semanal e ganhe XP a cada treino concluído.{' '}
           <Text style={styles.bodyBold}>Não deixe a chama apagar!</Text>
         </Text>
@@ -50,14 +51,14 @@ export function StreakSlide({ onNext, onSkip }: Props) {
 
       <PaginationDots total={3} current={0} />
 
-      <View style={styles.footer}>
+      <View style={shared.footer}>
         <Pressable
-          style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
+          style={({ pressed }) => [shared.primaryButton, pressed && shared.primaryButtonPressed]}
           onPress={onNext}
           accessibilityRole="button"
           accessibilityLabel="Próximo"
         >
-          <Text style={styles.primaryButtonText}>Próximo</Text>
+          <Text style={shared.primaryButtonText}>Próximo</Text>
           <MaterialIcons name="arrow-forward" size={20} color={colors.onPrimary} />
         </Pressable>
       </View>
@@ -66,13 +67,6 @@ export function StreakSlide({ onNext, onSkip }: Props) {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    backgroundColor: colors.background,
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 56,
-    paddingBottom: 40,
-  },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
@@ -109,16 +103,15 @@ const styles = StyleSheet.create({
   },
   ofensivaBadge: {
     alignItems: 'center',
+    alignSelf: 'center',
     backgroundColor: colors.primaryFixed,
     borderRadius: 20,
     bottom: -14,
     flexDirection: 'row',
     gap: 4,
-    left: '50%',
     paddingHorizontal: 12,
     paddingVertical: 6,
     position: 'absolute',
-    transform: [{ translateX: -44 }],
   },
   badgeText: {
     color: colors.primary,
@@ -144,50 +137,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bodySemiBold,
     fontSize: 11,
   },
-  textBlock: {
-    alignItems: 'center',
-    gap: 12,
-    marginBottom: 32,
+  textBlockStreak: {
     marginTop: 24,
-  },
-  heading: {
-    color: colors.onSurface,
-    fontFamily: fonts.displayBold,
-    fontSize: 28,
-    letterSpacing: -0.25,
-    lineHeight: 36,
-    textAlign: 'center',
-  },
-  body: {
-    color: colors.onSurfaceVariant,
-    fontFamily: fonts.bodyRegular,
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: 'center',
   },
   bodyBold: {
     color: colors.primary,
     fontFamily: fonts.bodySemiBold,
-  },
-  footer: {
-    marginTop: 'auto',
-  },
-  primaryButton: {
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    borderRadius: 14,
-    flexDirection: 'row',
-    gap: 8,
-    height: 56,
-    justifyContent: 'center',
-  },
-  primaryButtonPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
-  },
-  primaryButtonText: {
-    color: colors.onPrimary,
-    fontFamily: fonts.displayBold,
-    fontSize: 16,
   },
 });
