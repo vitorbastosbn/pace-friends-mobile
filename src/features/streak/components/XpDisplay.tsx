@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import type { XpProgress } from '../types/streak.types';
 import { colors } from '../../../theme/colors';
+import { fonts } from '../../../theme/typography';
 
 interface XpDisplayProps {
   progress: XpProgress;
@@ -11,19 +12,28 @@ interface XpDisplayProps {
   daysCompletedThisWeek: number;
 }
 
-export function XpDisplay({ progress, completed, lastResult, targetFrequency, daysCompletedThisWeek }: XpDisplayProps) {
-  const progressRatio = targetFrequency > 0 ? Math.min(daysCompletedThisWeek / targetFrequency, 1) : 0;
+export function XpDisplay({
+  progress,
+  completed,
+  lastResult,
+  targetFrequency,
+  daysCompletedThisWeek,
+}: XpDisplayProps) {
+  const progressRatio =
+    targetFrequency > 0 ? Math.min(daysCompletedThisWeek / targetFrequency, 1) : 0;
   const progressPercent = Math.round(progressRatio * 100);
 
-  const captionText = lastResult === 'BROKEN'
-    ? 'Ofensiva quebrada na ultima semana. Esta semana e uma nova chance.'
-    : completed
-    ? 'Ofensiva mantida! XP garantido nesta semana.'
-    : `So falta mais ${targetFrequency - daysCompletedThisWeek} dia${targetFrequency - daysCompletedThisWeek !== 1 ? 's' : ''} para bater sua meta!`;
+  const captionText =
+    lastResult === 'BROKEN'
+      ? 'Ofensiva quebrada na última semana. Esta semana é uma nova chance.'
+      : completed
+      ? 'Ofensiva mantida! XP garantido nesta semana.'
+      : `Só falta mais ${targetFrequency - daysCompletedThisWeek} dia${
+          targetFrequency - daysCompletedThisWeek !== 1 ? 's' : ''
+        } para bater sua meta!`;
 
   return (
     <View style={styles.card}>
-      {/* Header row */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <View style={styles.iconContainer}>
@@ -37,12 +47,10 @@ export function XpDisplay({ progress, completed, lastResult, targetFrequency, da
         <Text style={styles.percentage}>{progressPercent}%</Text>
       </View>
 
-      {/* Progress bar */}
       <View style={styles.progressTrack}>
         <View style={[styles.progressFill, { width: `${progressPercent}%` as `${number}%` }]} />
       </View>
 
-      {/* Caption */}
       <Text style={styles.caption}>{captionText}</Text>
     </View>
   );
@@ -51,72 +59,72 @@ export function XpDisplay({ progress, completed, lastResult, targetFrequency, da
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 12,
-    padding: 24,
-    borderWidth: 1,
     borderColor: colors.surfaceContainerLow,
+    borderRadius: 12,
+    borderWidth: 1,
+    elevation: 1,
+    gap: 12,
+    padding: 24,
     shadowColor: colors.onSurface,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
     shadowRadius: 2,
-    elevation: 1,
-    gap: 12,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   headerLeft: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     gap: 12,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(125,251,177,0.2)',
     alignItems: 'center',
+    backgroundColor: 'rgba(125,251,177,0.2)',
+    borderRadius: 20,
+    height: 40,
     justifyContent: 'center',
+    width: 40,
   },
   headerText: {
     gap: 2,
   },
   title: {
-    fontSize: 14,
-    fontWeight: '600',
     color: colors.onSurface,
-    letterSpacing: 0.02 * 14,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 14,
+    letterSpacing: 0.28,
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: '400',
     color: colors.onSurfaceVariant,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 16,
     lineHeight: 24,
   },
   percentage: {
-    fontSize: 20,
-    fontWeight: '600',
     color: colors.onSurface,
+    fontFamily: fonts.displaySemiBold,
+    fontSize: 20,
     lineHeight: 28,
   },
   progressTrack: {
-    width: '100%',
-    height: 12,
     backgroundColor: 'rgba(195,198,215,0.3)',
     borderRadius: 6,
+    height: 12,
     overflow: 'hidden',
+    width: '100%',
   },
   progressFill: {
-    height: '100%',
     backgroundColor: colors.secondary,
     borderRadius: 6,
+    height: '100%',
   },
   caption: {
-    fontSize: 12,
-    fontWeight: '500',
     color: colors.onSurfaceVariant,
-    letterSpacing: 0.05 * 12,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12,
+    letterSpacing: 0.6,
   },
 });
