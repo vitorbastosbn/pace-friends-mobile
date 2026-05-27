@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import type { StreakData } from '../types/streak.types';
 import { WeekProgress } from './WeekProgress';
 import { colors } from '../../../theme/colors';
+import { fonts } from '../../../theme/typography';
 
 interface StreakCardProps {
   data: StreakData;
@@ -94,7 +95,7 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
   const subtitleText = isEmpty
     ? 'Comece hoje e inicie sua ofensiva!'
     : remainingDays > 0
-    ? 'Voce esta em chamas!'
+    ? 'Você está em chamas!'
     : 'Semana completa! Continue assim!';
 
   return (
@@ -104,17 +105,13 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
       accessibilityLabel={accessLabel}
       accessibilityRole={onPress ? 'button' : 'none'}
     >
-      {/* Ambient background decoration */}
       <View style={styles.ambientCircle} pointerEvents="none" />
 
-      {/* Centered content */}
       <View style={styles.centerContent}>
-        {/* Fire icon with amber glow circle */}
         <View style={styles.fireIconContainer}>
           <MaterialIcons name="local-fire-department" size={64} color={colors.tertiary} />
         </View>
 
-        {/* Streak headline + subtitle */}
         <View style={styles.textGroup}>
           <Text style={[styles.streakHeadline, isEmpty && styles.streakHeadlineEmpty]}>
             {isEmpty ? '0 semanas' : `${currentStreak} semana${currentStreak !== 1 ? 's' : ''}`}
@@ -122,7 +119,6 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
           <Text style={styles.streakSubtitle}>{subtitleText}</Text>
         </View>
 
-        {/* XP badge */}
         {xpProgress.potentialXp > 0 && (
           <View style={styles.xpBadge}>
             <MaterialIcons name="add-circle" size={18} color={colors.tertiary} />
@@ -131,7 +127,6 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
         )}
       </View>
 
-      {/* Week calendar section with top divider */}
       <View style={styles.calendarSection}>
         <View style={styles.calendarHeader}>
           <Text style={styles.calendarTitle}>Semana Atual</Text>
@@ -140,6 +135,8 @@ export function StreakCard({ data, onPress }: StreakCardProps) {
         <WeekProgress
           daysCompleted={daysCompletedThisWeek}
           targetDays={targetFrequency}
+          filledColor={colors.primary}
+          labelPosition="top"
         />
       </View>
     </Pressable>
@@ -178,21 +175,21 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   fireIconContainer: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: 'rgba(208,166,0,0.1)',
     alignItems: 'center',
+    backgroundColor: 'rgba(208,166,0,0.10)',
+    borderRadius: 48,
+    height: 96,
     justifyContent: 'center',
+    width: 96,
   },
   textGroup: {
     alignItems: 'center',
     gap: 4,
   },
   streakHeadline: {
-    fontSize: 28,
-    fontWeight: '700',
     color: colors.onSurface,
+    fontFamily: fonts.displayBold,
+    fontSize: 28,
     lineHeight: 36,
     textAlign: 'center',
   },
@@ -200,107 +197,107 @@ const styles = StyleSheet.create({
     color: colors.onSurfaceVariant,
   },
   streakSubtitle: {
-    fontSize: 16,
-    fontWeight: '400',
     color: colors.onSurfaceVariant,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
   },
   xpBadge: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
     backgroundColor: colors.tertiaryFixed,
+    borderRadius: 9999,
+    flexDirection: 'row',
+    gap: 6,
     paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 9999,
   },
   xpText: {
-    fontSize: 14,
-    fontWeight: '600',
     color: colors.tertiary,
-    letterSpacing: 0.02 * 14,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 14,
+    letterSpacing: 0.28,
   },
   calendarSection: {
+    borderTopColor: 'rgba(195,198,215,0.3)',
+    borderTopWidth: 1,
+    gap: 16,
     marginTop: 32,
     paddingTop: 24,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(195,198,215,0.3)',
-    gap: 16,
   },
   calendarHeader: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   calendarTitle: {
-    fontSize: 14,
-    fontWeight: '600',
     color: colors.onSurface,
-    letterSpacing: 0.02 * 14,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 14,
+    letterSpacing: 0.28,
   },
   calendarSubtitle: {
-    fontSize: 12,
-    fontWeight: '500',
     color: colors.onSurfaceVariant,
-    letterSpacing: 0.05 * 12,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12,
+    letterSpacing: 0.6,
   },
   errorCard: {
     alignItems: 'center',
     gap: 8,
   },
   errorText: {
-    fontSize: 14,
     color: colors.error,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 14,
     textAlign: 'center',
-    fontWeight: '400',
   },
   retryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderColor: colors.primary,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   retryButtonPressed: {
     backgroundColor: colors.surfaceContainerLow,
   },
   retryText: {
-    fontSize: 13,
-    fontWeight: '600',
     color: colors.primary,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 13,
   },
   skeletonRow: {
-    flexDirection: 'row',
     alignItems: 'center',
+    flexDirection: 'row',
     gap: 8,
   },
   skeletonIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
     backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: 14,
+    height: 28,
+    width: 28,
   },
   skeletonCounter: {
-    width: 64,
-    height: 32,
-    borderRadius: 8,
     backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: 8,
+    height: 32,
+    width: 64,
   },
   skeletonBarWrap: {
     width: '100%',
   },
   skeletonBar: {
-    width: '100%',
-    height: 28,
-    borderRadius: 14,
     backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: 14,
+    height: 28,
+    width: '100%',
   },
   skeletonXp: {
-    width: 80,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: colors.surfaceContainerHigh,
     alignSelf: 'center',
+    backgroundColor: colors.surfaceContainerHigh,
+    borderRadius: 8,
+    height: 16,
+    width: 80,
   },
 });
