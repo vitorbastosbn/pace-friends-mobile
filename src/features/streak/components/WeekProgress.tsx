@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../../../theme/colors';
+import { fonts } from '../../../theme/typography';
 
 interface WeekProgressProps {
   daysCompleted: number;
@@ -59,8 +60,8 @@ const styles = StyleSheet.create({
   },
   dayLabel: {
     color: colors.onSurfaceVariant,
+    fontFamily: fonts.bodyMedium,
     fontSize: 12,
-    fontWeight: '500',
     letterSpacing: 0.6,
   },
   dayCircle: {
@@ -71,7 +72,6 @@ const styles = StyleSheet.create({
     width: 40,
   },
   dayCircleFilled: {
-    backgroundColor: colors.secondary,
     elevation: 2,
     shadowColor: colors.onSurface,
     shadowOffset: { width: 0, height: 2 },
