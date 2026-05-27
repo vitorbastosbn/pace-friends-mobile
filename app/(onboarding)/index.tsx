@@ -12,7 +12,11 @@ export default function OnboardingScreen() {
   const { completeOnboarding } = useAuthNavigation();
 
   async function finish() {
-    await markOnboardingComplete();
+    try {
+      await markOnboardingComplete();
+    } catch (error) {
+      console.error('[onboarding] Failed to persist completion:', error);
+    }
     completeOnboarding();
   }
 
