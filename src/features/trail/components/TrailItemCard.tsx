@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '../../../theme/colors';
 import type { ItemStatus, TrailItem } from '../types/trail.types';
 
@@ -12,8 +13,8 @@ export function TrailItemCard({ item }: TrailItemCardProps) {
   const isCurrent = item.status === 'IN_PROGRESS';
   const isLocked = item.status === 'LOCKED';
 
-  return (
-    <View style={styles.row}>
+  const rowContent = (
+    <>
       {/* Circle icon */}
       <View
         style={[
@@ -23,14 +24,15 @@ export function TrailItemCard({ item }: TrailItemCardProps) {
           isLocked && styles.circleLocked,
         ]}
       >
-        <Text style={[
-          styles.circleIcon,
-          isCompleted && styles.circleIconCompleted,
-          isCurrent && styles.circleIconCurrent,
-          isLocked && styles.circleIconLocked,
-        ]}>
-          {isCompleted ? '✓' : isCurrent ? '▶' : '🔒'}
-        </Text>
+        {isCompleted && (
+          <MaterialIcons name="check" size={24} color={colors.onSecondaryContainer} />
+        )}
+        {isCurrent && (
+          <MaterialIcons name="directions-run" size={24} color={colors.onPrimary} />
+        )}
+        {isLocked && (
+          <MaterialIcons name="lock" size={20} color={colors.outline} />
+        )}
       </View>
 
       {/* Card */}
@@ -60,7 +62,7 @@ export function TrailItemCard({ item }: TrailItemCardProps) {
             </Text>
             {isCurrent && (
               <View style={styles.nextMissionBadge}>
-                <Text style={styles.nextMissionText}>Próxima missão</Text>
+                <Text style={styles.nextMissionText}>Em andamento</Text>
               </View>
             )}
           </View>
@@ -70,16 +72,32 @@ export function TrailItemCard({ item }: TrailItemCardProps) {
             +{item.xpReward} XP
           </Text>
 
-          {/* CTA button for current */}
+          {/* Inline progress bar for current item */}
           {isCurrent && (
-            <TouchableOpacity style={styles.startButton} activeOpacity={0.85}>
-              <Text style={styles.startButtonText}>Iniciar Missão  ▶</Text>
-            </TouchableOpacity>
+            <View style={styles.itemProgressContainer}>
+              <View style={styles.itemProgressLabelRow}>
+                <Text style={styles.itemProgressLabel}>Progresso</Text>
+                <Text style={styles.itemProgressPct}>0%</Text>
+              </View>
+              <View style={styles.itemProgressTrack}>
+                <View style={styles.itemProgressFill} />
+              </View>
+            </View>
           )}
         </View>
       </View>
-    </View>
+    </>
   );
+
+  if (isLocked) {
+    return (
+      <View style={[styles.row, styles.rowLocked]}>
+        {rowContent}
+      </View>
+    );
+  }
+
+  return <View style={styles.row}>{rowContent}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -87,6 +105,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 16,
+  },
+  rowLocked: {
+    opacity: 0.5,
   },
 
   // --- Circle ---
@@ -119,21 +140,6 @@ const styles = StyleSheet.create({
     borderColor: colors.outlineVariant,
     shadowOpacity: 0,
     elevation: 0,
-  },
-  circleIcon: {
-    fontSize: 18,
-  },
-  circleIconCompleted: {
-    color: colors.onSecondaryContainer,
-    fontWeight: '700',
-  },
-  circleIconCurrent: {
-    color: colors.onPrimary,
-    fontWeight: '700',
-  },
-  circleIconLocked: {
-    color: colors.outline,
-    fontSize: 16,
   },
 
   // --- Card ---
@@ -238,18 +244,35 @@ const styles = StyleSheet.create({
     color: colors.outlineVariant,
   },
 
-  startButton: {
+  itemProgressContainer: {
     marginTop: 12,
-    height: 40,
+    gap: 6,
+  },
+  itemProgressLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  itemProgressLabel: {
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+    fontWeight: '500',
+  },
+  itemProgressPct: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: '700',
+  },
+  itemProgressTrack: {
+    height: 6,
+    backgroundColor: `rgba(195, 198, 215, 0.3)`,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  itemProgressFill: {
+    width: '0%',
+    height: '100%',
     backgroundColor: colors.primary,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 3,
   },
-  startButtonText: {
-    color: colors.onPrimary,
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: 0.02 * 14,
-  },
+
 });

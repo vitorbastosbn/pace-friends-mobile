@@ -74,6 +74,7 @@ export function TrailScreen({ userId, token }: TrailScreenProps) {
     >
       {/* Trail Header */}
       <View style={styles.headerSection}>
+        <Text style={styles.pageTitle}>Trilhas</Text>
         <Text style={styles.levelTitle}>
           Nível {trail.currentLevel} — {trail.currentLevelName}
         </Text>
@@ -242,13 +243,20 @@ const styles = StyleSheet.create({
 
   // Header
   headerSection: {
-    gap: 16,
+    gap: 12,
+  },
+  pageTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: colors.onSurface,
+    lineHeight: 40,
+    letterSpacing: -0.5,
   },
   levelTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.onSurface,
-    lineHeight: 36,
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.onSurfaceVariant,
+    lineHeight: 24,
   },
 
   // Alerts
