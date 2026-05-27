@@ -13,7 +13,14 @@ export default function RootLayout() {
   const segments = useSegments();
   const router = useRouter();
 
-  const completeSignIn = useCallback(() => setAuthState('authenticated'), []);
+  const completeSignIn = useCallback(async () => {
+    try {
+      const done = await hasCompletedOnboarding();
+      setAuthState(done ? 'authenticated' : 'onboarding');
+    } catch {
+      setAuthState('onboarding');
+    }
+  }, []);
   const completeSignOut = useCallback(() => setAuthState('unauthenticated'), []);
   const completeOnboarding = useCallback(() => setAuthState('authenticated'), []);
 
