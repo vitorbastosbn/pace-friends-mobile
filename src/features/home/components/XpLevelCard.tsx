@@ -28,7 +28,7 @@ export function XpLevelCard({ totalXp, currentLevel, xpForNextLevel }: XpLevelCa
         </View>
         <Text style={styles.next} selectable>
           <Text style={styles.xp}>{totalXp.toLocaleString('pt-BR')} XP</Text>
-          {missingXp === null ? ' - nivel maximo' : ` - faltam ${missingXp}`}
+          {missingXp === null ? ' • nível máximo' : ` • faltam ${missingXp}`}
         </Text>
       </View>
     </View>
@@ -38,7 +38,7 @@ export function XpLevelCard({ totalXp, currentLevel, xpForNextLevel }: XpLevelCa
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    height: 144,
+    height: 148,
     padding: 16,
     borderRadius: 12,
     backgroundColor: colors.surfaceContainerLowest,

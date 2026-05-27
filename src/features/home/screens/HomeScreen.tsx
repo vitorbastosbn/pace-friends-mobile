@@ -91,22 +91,22 @@ export function HomeScreen({ userId, userName, userPhotoUrl, token }: HomeScreen
           contentInsetAdjustmentBehavior="automatic"
         >
           <View style={styles.appBar}>
-            <View style={styles.brand}>
-              <Image
-                accessibilityLabel={`Foto de ${userName}`}
-                source={{ uri: userPhotoUrl ?? REFERENCE_PROFILE_IMAGE }}
-                style={styles.avatar}
-              />
-              <Text selectable style={styles.brandName}>Pace Friends</Text>
-            </View>
+            <Text selectable style={styles.brandName}>Pace Friends</Text>
             <MaterialIcons name="notifications-none" size={25} color={colors.primary} />
           </View>
 
           <View style={styles.hero}>
-            <Text selectable style={styles.greeting} accessibilityRole="header">
-              Olá, {firstName}
-            </Text>
-            <Text selectable style={styles.subtitle}>Seu progresso está ganhando ritmo.</Text>
+            <View style={styles.heroLeft}>
+              <Text selectable style={styles.greeting} accessibilityRole="header">
+                Olá, {firstName}
+              </Text>
+              <Text selectable style={styles.subtitle}>Seu progresso está ganhando ritmo.</Text>
+            </View>
+            <Image
+              accessibilityLabel={`Foto de ${userName}`}
+              source={{ uri: userPhotoUrl ?? REFERENCE_PROFILE_IMAGE }}
+              style={styles.avatar}
+            />
           </View>
 
           <View style={styles.summaryRow}>
@@ -158,11 +158,15 @@ function HomeSkeleton() {
       accessibilityLabel="Carregando Home"
     >
       <View style={styles.skeletonBar}>
-        <View style={[styles.skeleton, styles.skeletonAvatar]} />
         <View style={[styles.skeleton, styles.skeletonBrand]} />
       </View>
-      <View style={[styles.skeleton, styles.skeletonHeading]} />
-      <View style={[styles.skeleton, styles.skeletonSubtitle]} />
+      <View style={styles.skeletonHeroRow}>
+        <View style={styles.skeletonHeroText}>
+          <View style={[styles.skeleton, styles.skeletonHeading]} />
+          <View style={[styles.skeleton, styles.skeletonSubtitle]} />
+        </View>
+        <View style={[styles.skeleton, styles.skeletonAvatar]} />
+      </View>
       <View style={styles.summaryRow}>
         <View style={[styles.skeleton, styles.skeletonHero]} />
         <View style={[styles.skeleton, styles.skeletonHero]} />
@@ -194,18 +198,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingBottom: 2,
   },
-  brand: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 10,
-  },
-  avatar: {
-    borderColor: 'rgba(0, 80, 215, 0.10)',
-    borderRadius: 20,
-    borderWidth: 2,
-    height: 40,
-    width: 40,
-  },
   brandName: {
     color: colors.primary,
     fontFamily: fonts.displayBold,
@@ -213,7 +205,22 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   hero: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  heroLeft: {
+    flex: 1,
     gap: 3,
+    paddingRight: 12,
+  },
+  avatar: {
+    borderColor: 'rgba(0, 80, 215, 0.10)',
+    borderRadius: 28,
+    borderWidth: 2,
+    flexShrink: 0,
+    height: 56,
+    width: 56,
   },
   greeting: {
     color: colors.onSurface,
@@ -275,28 +282,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.outlineVariant,
   },
   skeletonBar: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 10,
     paddingBottom: 4,
-  },
-  skeletonAvatar: {
-    borderRadius: 20,
-    height: 40,
-    width: 40,
   },
   skeletonBrand: {
     height: 24,
     width: 130,
   },
+  skeletonHeroRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  skeletonHeroText: {
+    flex: 1,
+    gap: 6,
+    paddingRight: 12,
+  },
+  skeletonAvatar: {
+    borderRadius: 28,
+    flexShrink: 0,
+    height: 56,
+    width: 56,
+  },
   skeletonHeading: {
     height: 30,
-    width: '55%',
+    width: '75%',
   },
   skeletonSubtitle: {
     height: 18,
-    width: '78%',
-    marginBottom: 7,
+    width: '90%',
   },
   skeletonHero: {
     flex: 1,

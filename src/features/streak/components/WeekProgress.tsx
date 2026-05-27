@@ -16,15 +16,15 @@ export function WeekProgress({ daysCompleted, targetDays }: WeekProgressProps) {
         const filled = index < daysCompleted;
         return (
           <View key={index} style={styles.dayColumn}>
-            <Text style={styles.dayLabel}>{label}</Text>
             <View
               style={[styles.dayCircle, filled ? styles.dayCircleFilled : styles.dayCircleEmpty]}
               accessibilityLabel={`Dia ${index + 1}: ${filled ? 'completo' : 'pendente'}`}
             >
               {filled && (
-                <MaterialIcons name="check" size={20} color={colors.onPrimary} />
+                <MaterialIcons name="check" size={20} color={colors.onSecondary} />
               )}
             </View>
+            <Text style={styles.dayLabel}>{label}</Text>
           </View>
         );
       })}
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dayCircleFilled: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.secondary,
     shadowColor: colors.onSurface,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,

@@ -21,9 +21,12 @@ export function StreakCard({ currentStreak, onPress }: StreakCardProps) {
         <MaterialIcons name="local-fire-department" size={20} color="#FF6D00" />
       </View>
       <View style={styles.body}>
-        <Text selectable style={styles.value}>
-          {currentStreak} {currentStreak === 1 ? 'semana' : 'semanas'}
-        </Text>
+        <View style={styles.valueRow}>
+          <Text selectable style={styles.valueNumber}>{currentStreak}</Text>
+          <Text selectable style={styles.valueUnit}>
+            {currentStreak === 1 ? 'semana' : 'semanas'}
+          </Text>
+        </View>
         <Text selectable style={styles.message}>
           {currentStreak > 0 ? 'Foco total!' : 'Comece hoje!'}
         </Text>
@@ -35,7 +38,7 @@ export function StreakCard({ currentStreak, onPress }: StreakCardProps) {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    height: 144,
+    height: 148,
     padding: 16,
     borderRadius: 12,
     backgroundColor: colors.surfaceContainerLowest,
@@ -61,12 +64,23 @@ const styles = StyleSheet.create({
   body: {
     gap: 3,
   },
-  value: {
+  valueRow: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    gap: 4,
+  },
+  valueNumber: {
     color: colors.onSurface,
     fontFamily: fonts.displayBold,
-    fontSize: 22,
-    lineHeight: 30,
+    fontSize: 44,
+    lineHeight: 52,
     fontVariant: ['tabular-nums'],
+  },
+  valueUnit: {
+    color: colors.onSurface,
+    fontFamily: fonts.bodyBold,
+    fontSize: 16,
+    lineHeight: 24,
   },
   message: {
     color: colors.onSurfaceVariant,

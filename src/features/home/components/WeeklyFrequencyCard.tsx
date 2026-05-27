@@ -3,6 +3,8 @@ import { colors } from '../../../theme/colors';
 import { fonts } from '../../../theme/typography';
 import { WeekProgress } from '../../streak/components/WeekProgress';
 
+const BADGE_BG = 'rgba(125, 251, 177, 0.30)';
+
 interface WeeklyFrequencyCardProps {
   daysTrained: number;
   goal: number;
@@ -12,8 +14,10 @@ export function WeeklyFrequencyCard({ daysTrained, goal }: WeeklyFrequencyCardPr
   return (
     <View style={styles.card}>
       <View style={styles.headingRow}>
-        <Text selectable style={styles.title}>Semana Atual</Text>
-        <Text selectable style={styles.subtitle}>{daysTrained} de 7 dias</Text>
+        <Text selectable style={styles.title}>Frequência Semanal</Text>
+        <View style={styles.badge}>
+          <Text selectable style={styles.badgeText}>{daysTrained}/{goal} dias</Text>
+        </View>
       </View>
       <WeekProgress daysCompleted={daysTrained} targetDays={goal} />
     </View>
@@ -38,16 +42,21 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.onSurface,
+    fontFamily: fonts.displaySemiBold,
+    fontSize: 20,
+    lineHeight: 28,
+  },
+  badge: {
+    backgroundColor: BADGE_BG,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  badgeText: {
+    color: colors.secondary,
     fontFamily: fonts.bodySemiBold,
     fontSize: 14,
-    letterSpacing: 0.28,
-    lineHeight: 20,
-  },
-  subtitle: {
-    color: colors.onSurfaceVariant,
-    fontFamily: fonts.bodyMedium,
-    fontSize: 12,
-    letterSpacing: 0.6,
     fontVariant: ['tabular-nums'],
+    lineHeight: 20,
   },
 });
