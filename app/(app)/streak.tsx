@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, StyleSheet, View } from 'react-native';
 import { getSession } from '../../src/services/sessionManager';
 import { StreakScreen } from '../../src/features/streak/screens/StreakScreen';
+import { colors } from '../../src/theme/colors';
 
 export default function StreakRoute() {
   const [token, setToken] = useState<string>('');
@@ -23,7 +24,7 @@ export default function StreakRoute() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#0D47A1" accessibilityLabel="Carregando" />
+          <ActivityIndicator size="large" color={colors.primary} accessibilityLabel="Carregando" />
         </View>
       </SafeAreaView>
     );
@@ -34,12 +35,12 @@ export default function StreakRoute() {
 
 const styles = StyleSheet.create({
   safeArea: {
+    backgroundColor: colors.background,
     flex: 1,
-    backgroundColor: '#F8FAFF',
   },
   center: {
-    flex: 1,
     alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
   },
 });
