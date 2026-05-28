@@ -1,14 +1,14 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useLayoutEffect } from 'react';
 import {
   Animated,
   FlatList,
   Pressable,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
 import type { ActivityResponse } from '../types/challenge.types';
 import { useChallengeDetail } from '../hooks/useChallengeDetail';
 import { ChallengeCard } from '../components/ChallengeCard';
@@ -25,11 +25,18 @@ export function ChallengeDetailScreen({
   challengeId,
 }: ChallengeDetailScreenProps) {
   const router = useRouter();
+  const navigation = useNavigation();
   const { detail, activities, isLoading, error, reload } = useChallengeDetail(
     token,
     challengeId
   );
   const shimmerAnim = useRef(new Animated.Value(0.4)).current;
+
+  useLayoutEffect(() => {
+    if (detail) {
+      navigation.setOptions({ title: detail.title });
+    }
+  }, [navigation, detail]);
 
   useEffect(() => {
     if (isLoading) {
@@ -59,23 +66,6 @@ export function ChallengeDetailScreen({
 
   const headerComponent = (
     <>
-      {/* Back header */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          style={styles.backButton}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-          hitSlop={8}
-        >
-          <Text style={styles.backText}>{'‹'}</Text>
-        </Pressable>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          Detalhe
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
       {isLoading ? (
         <View style={styles.scrollContent}>
           {[0, 1, 2].map((i) => (
@@ -88,10 +78,8 @@ export function ChallengeDetailScreen({
         </View>
       ) : detail ? (
         <View style={styles.scrollContent}>
-          {/* Challenge card expanded */}
           <ChallengeCard data={detail} />
 
-          {/* Register activity button */}
           {detail.status === 'ACTIVE' && (
             <Pressable
               style={({ pressed }) => [
@@ -112,7 +100,6 @@ export function ChallengeDetailScreen({
             </Pressable>
           )}
 
-          {/* Activities section title */}
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Atividades</Text>
             <Text style={styles.seeAll}>Ver Todas</Text>
@@ -124,23 +111,9 @@ export function ChallengeDetailScreen({
 
   if (error) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Pressable
-            onPress={() => router.back()}
-            style={styles.backButton}
-            accessibilityLabel="Voltar"
-            accessibilityRole="button"
-            hitSlop={8}
-          >
-            <Text style={styles.backText}>{'‹'}</Text>
-          </Pressable>
-          <Text style={styles.headerTitle} accessibilityRole="header">
-            Detalhe
-          </Text>
-          <View style={styles.headerSpacer} />
-        </View>
+      <View style={styles.safeArea}>
         <View style={styles.errorContainer}>
+          <MaterialIcons name="error-outline" size={48} color={colors.onSurfaceVariant} />
           <Text
             style={styles.errorText}
             accessibilityRole="alert"
@@ -160,7 +133,7 @@ export function ChallengeDetailScreen({
             <Text style={styles.retryButtonText}>Tentar novamente</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -173,7 +146,7 @@ export function ChallengeDetailScreen({
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <FlatList
         data={!isLoading && detail ? activities : []}
         keyExtractor={(item) => item.id}
@@ -183,7 +156,7 @@ export function ChallengeDetailScreen({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -192,65 +165,57 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    height: 56,
-    backgroundColor: colors.background,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 9999,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backText: {
-    fontSize: 28,
-    color: colors.primary,
-    fontWeight: '400',
-    lineHeight: 32,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  headerSpacer: {
-    width: 40,
-  },
-  listContent: {
-    paddingBottom: 40,
-  },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 8,
     gap: 16,
   },
-  registerButton: {
-    height: 56,
-    backgroundColor: colors.primary,
-    borderRadius: 12,
+  listContent: {
+    paddingBottom: 32,
+  },
+  errorContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: colors.primary,
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    padding: 24,
+    gap: 12,
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    height: 52,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  retryButtonPressed: {
+    backgroundColor: colors.primaryDark,
+  },
+  retryButtonText: {
+    color: colors.onPrimary,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  registerButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   registerButtonPressed: {
-    opacity: 0.85,
+    backgroundColor: colors.primaryDark,
   },
   registerButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
     color: colors.onPrimary,
-    letterSpacing: 0.02,
+    fontWeight: '700',
+    fontSize: 16,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -258,65 +223,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     color: colors.onSurface,
-    lineHeight: 28,
   },
   seeAll: {
     fontSize: 14,
-    fontWeight: '600',
     color: colors.primary,
-    letterSpacing: 0.02,
+    fontWeight: '600',
+  },
+  emptyActivities: {
+    alignItems: 'center',
+    padding: 24,
+  },
+  emptyActivitiesText: {
+    color: colors.onSurfaceVariant,
+    fontSize: 14,
   },
   skeletonCardLarge: {
     height: 160,
-    backgroundColor: colors.surfaceContainerHigh,
     borderRadius: 12,
+    backgroundColor: colors.surfaceContainerHigh,
+    marginBottom: 12,
   },
   skeletonRow: {
-    height: 72,
-    backgroundColor: colors.surfaceContainerLow,
-    borderRadius: 12,
-  },
-  emptyActivities: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    alignItems: 'center',
-  },
-  emptyActivitiesText: {
-    fontSize: 14,
-    color: colors.onSurfaceVariant,
-    textAlign: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    gap: 16,
-  },
-  errorText: {
-    fontSize: 15,
-    color: colors.error,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  retryButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 14,
-    backgroundColor: colors.primary,
-    borderRadius: 12,
-    minHeight: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  retryButtonPressed: {
-    opacity: 0.85,
-  },
-  retryButtonText: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: colors.onPrimary,
+    height: 56,
+    borderRadius: 8,
+    backgroundColor: colors.surfaceContainerHigh,
+    marginBottom: 8,
   },
 });

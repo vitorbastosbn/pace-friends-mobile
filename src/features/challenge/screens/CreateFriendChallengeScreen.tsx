@@ -5,7 +5,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -111,23 +110,7 @@ export function CreateFriendChallengeScreen({ token }: CreateFriendChallengeScre
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          style={styles.backButton}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-          hitSlop={8}
-        >
-          <Text style={styles.backText}>{'<'}</Text>
-        </Pressable>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          Novo Desafio com Amigos
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
+    <View style={styles.safeArea}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -288,37 +271,13 @@ export function CreateFriendChallengeScreen({ token }: CreateFriendChallengeScre
           </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F8FAFF' },
   flex: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8EDF5',
-    backgroundColor: '#F8FAFF',
-  },
-  backButton: {
-    minWidth: 48,
-    minHeight: 48,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  backText: { fontSize: 22, color: '#0D47A1', fontWeight: '600' },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#0D47A1',
-  },
-  headerSpacer: { minWidth: 48 },
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16 },
   fieldGroup: { marginBottom: 20 },

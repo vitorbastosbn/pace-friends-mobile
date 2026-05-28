@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import {
   Image,
   Pressable,
@@ -10,7 +11,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFonts as usePlusJakartaSans, PlusJakartaSans_400Regular, PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold, PlusJakartaSans_800ExtraBold } from '@expo-google-fonts/plus-jakarta-sans';
 import { useFonts as useBeVietnamPro, BeVietnamPro_400Regular, BeVietnamPro_500Medium, BeVietnamPro_600SemiBold, BeVietnamPro_700Bold } from '@expo-google-fonts/be-vietnam-pro';
-import { useRouter } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import { colors } from '../../../theme/colors';
 import { fonts } from '../../../theme/typography';
@@ -33,6 +34,7 @@ const REFERENCE_PROFILE_IMAGE =
 
 export function HomeScreen({ userId, userName, userPhotoUrl, token }: HomeScreenProps) {
   const router = useRouter();
+  const navigation = useNavigation();
   const [displayFontsLoaded] = usePlusJakartaSans({
     PlusJakartaSans_400Regular,
     PlusJakartaSans_600SemiBold,
@@ -47,6 +49,16 @@ export function HomeScreen({ userId, userName, userPhotoUrl, token }: HomeScreen
   });
   const { summary, loadState, error, reload } = useHomeSummary(userId, token);
   const firstName = userName.split(' ')[0] || 'corredor';
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={homeHeaderStyles.iconWrap}>
+          <MaterialIcons name="notifications-none" size={24} color={colors.primary} />
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   if (!displayFontsLoaded || !bodyFontsLoaded || loadState === 'loading') {
     return (
@@ -90,11 +102,6 @@ export function HomeScreen({ userId, userName, userPhotoUrl, token }: HomeScreen
           showsVerticalScrollIndicator={false}
           contentInsetAdjustmentBehavior="automatic"
         >
-          <View style={styles.appBar}>
-            <Text selectable style={styles.brandName}>Pace Friends</Text>
-            <MaterialIcons name="notifications-none" size={25} color={colors.primary} />
-          </View>
-
           <View style={styles.hero}>
             <View style={styles.heroLeft}>
               <Text selectable style={styles.greeting} accessibilityRole="header">
@@ -191,18 +198,6 @@ const styles = StyleSheet.create({
     paddingTop: (NativeStatusBar.currentHeight ?? 0) + 10,
     paddingBottom: 96,
     gap: 20,
-  },
-  appBar: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingBottom: 2,
-  },
-  brandName: {
-    color: colors.primary,
-    fontFamily: fonts.displayBold,
-    fontSize: 23,
-    letterSpacing: -0.2,
   },
   hero: {
     alignItems: 'center',
@@ -338,5 +333,15 @@ const styles = StyleSheet.create({
   fabPressed: {
     opacity: 0.84,
     transform: [{ scale: 0.96 }],
+  },
+});
+
+const homeHeaderStyles = StyleSheet.create({
+  iconWrap: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 4,
   },
 });

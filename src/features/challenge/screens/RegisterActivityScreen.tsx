@@ -2,16 +2,17 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useChallengeDetail } from '../hooks/useChallengeDetail';
 import {
@@ -22,16 +23,41 @@ import {
 import { calculateLivePace, parseDurationToSeconds } from '../mappers/challengeMapper';
 import { notifyStreakChanged } from '../../streak/services/streakEvents';
 import { getUserAchievements } from '../../achievements/services/achievementsService';
+import { colors } from '../../../theme/colors';
+import { fonts } from '../../../theme/typography';
+
+const BANNER_IMAGE_URI =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuB0mIsjUywDN9OhpO1WdXeSdJb3SQ7p2QVG54ZCazgf54Yo7CPjdesGjofJGYyHXnnMrgpgh-9uu7RrvTkqwtJyQDtVyp5Uw8S60l2seLAmOh7VrusmgHLO9r4iy_OTXbm2dzc5JYeU06UFcIoj3H7XUhku7yfxm3VW5KgI-fz39kiFPl0E7cDrrbLpvS7DemQyQacGZ-3qdOWYs6PU1chnhjPxilkplOkL3abA42QEsLQLJO7hK1eFFo5Uz9YDNYuKEBE2RhonptK6';
+
+function todayISO(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function formatDuration(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 6);
+  if (digits.length === 0) return '';
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}:${digits.slice(2, 4)}:${digits.slice(4)}`;
+}
+
+function formatDate(raw: string): string {
+  const digits = raw.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 4) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+}
 
 interface RegisterActivityScreenProps {
   token: string;
   challengeId: string;
 }
 
-export function RegisterActivityScreen({
-  token,
-  challengeId,
-}: RegisterActivityScreenProps) {
+export function RegisterActivityScreen({ token, challengeId }: RegisterActivityScreenProps) {
   const router = useRouter();
   const { registerActivity, submitState } = useChallengeDetail(token, challengeId, {
     autoLoad: false,
@@ -39,7 +65,7 @@ export function RegisterActivityScreen({
 
   const [distanceKmText, setDistanceKmText] = useState('');
   const [durationText, setDurationText] = useState('');
-  const [activityDate, setActivityDate] = useState('');
+  const [activityDate, setActivityDate] = useState(todayISO);
   const [notes, setNotes] = useState('');
   const [formErrors, setFormErrors] = useState<RegisterActivityFormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -60,10 +86,7 @@ export function RegisterActivityScreen({
 
     const durationSeconds = parseDurationToSeconds(durationText);
     if (durationSeconds === null) {
-      setFormErrors((prev) => ({
-        ...prev,
-        duration: 'Formato invalido. Use mm:ss ou hh:mm:ss.',
-      }));
+      setFormErrors((prev) => ({ ...prev, duration: 'Formato inválido. Use mm:ss ou hh:mm:ss.' }));
       return;
     }
 
@@ -96,29 +119,12 @@ export function RegisterActivityScreen({
 
       router.back();
     } else {
-      setSubmitError('Nao foi possivel registrar a atividade. Tente novamente.');
+      setSubmitError('Não foi possível registrar a atividade. Tente novamente.');
     }
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          style={styles.backButton}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-          hitSlop={8}
-        >
-          <Text style={styles.backText}>{'‹'}</Text>
-        </Pressable>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          Registrar Atividade
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
+    <View style={styles.root}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -129,141 +135,144 @@ export function RegisterActivityScreen({
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Distance */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>
-              Distancia (km) <Text style={styles.required}>*</Text>
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                formErrors.distanceKm ? styles.inputError : null,
-              ]}
-              value={distanceKmText}
-              onChangeText={(v) => {
-                setDistanceKmText(v);
-                clearFieldError('distanceKm');
-              }}
-              placeholder="Ex: 10.5"
-              placeholderTextColor="#B0BEC5"
-              keyboardType="decimal-pad"
-              returnKeyType="next"
-              accessible
-              accessibilityLabel="Distancia em quilometros"
-              editable={!isSubmitting}
-            />
-            {formErrors.distanceKm ? (
-              <Text style={styles.fieldError} accessibilityRole="alert">
-                {formErrors.distanceKm}
+          {/* Bento stats row */}
+          <View style={styles.bentoRow}>
+            <View style={[styles.card, styles.flex1, formErrors.distanceKm ? styles.cardError : null]}>
+              <View style={styles.cardLabelRow}>
+                <MaterialIcons name="route" size={16} color={colors.onSurfaceVariant} />
+                <Text style={styles.cardLabel}>Distância</Text>
+              </View>
+              <View style={styles.cardValueRow}>
+                <TextInput
+                  style={styles.cardInput}
+                  value={distanceKmText}
+                  onChangeText={(v) => { setDistanceKmText(v); clearFieldError('distanceKm'); }}
+                  placeholder="0.00"
+                  placeholderTextColor={colors.outlineVariant}
+                  keyboardType="decimal-pad"
+                  editable={!isSubmitting}
+                  accessibilityLabel="Distância em quilômetros"
+                />
+                <Text style={styles.cardUnit}>km</Text>
+              </View>
+            </View>
+
+            <View style={[styles.card, styles.flex1, formErrors.duration ? styles.cardError : null]}>
+              <View style={styles.cardLabelRow}>
+                <MaterialIcons name="timer" size={16} color={colors.onSurfaceVariant} />
+                <Text style={styles.cardLabel}>Tempo</Text>
+              </View>
+              <TextInput
+                style={styles.cardInput}
+                value={durationText}
+                onChangeText={(v) => { setDurationText(formatDuration(v)); clearFieldError('duration'); }}
+                placeholder="00:00:00"
+                placeholderTextColor={colors.outlineVariant}
+                keyboardType="numbers-and-punctuation"
+                editable={!isSubmitting}
+                accessibilityLabel="Tempo de atividade"
+              />
+            </View>
+          </View>
+
+          {(formErrors.distanceKm || formErrors.duration) && (
+            <View style={styles.bentoErrorRow}>
+              <Text style={[styles.fieldError, styles.flex1]} accessibilityRole="alert">
+                {formErrors.distanceKm ?? ''}
               </Text>
-            ) : null}
-          </View>
-
-          {/* Duration */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>
-              Tempo (mm:ss ou hh:mm:ss) <Text style={styles.required}>*</Text>
-            </Text>
-            <TextInput
-              style={[
-                styles.input,
-                formErrors.duration ? styles.inputError : null,
-              ]}
-              value={durationText}
-              onChangeText={(v) => {
-                setDurationText(v);
-                clearFieldError('duration');
-              }}
-              placeholder="Ex: 55:00 ou 1:05:30"
-              placeholderTextColor="#B0BEC5"
-              keyboardType="numbers-and-punctuation"
-              returnKeyType="next"
-              accessible
-              accessibilityLabel="Tempo de atividade no formato mm:ss ou hh:mm:ss"
-              editable={!isSubmitting}
-            />
-            {formErrors.duration ? (
-              <Text style={styles.fieldError} accessibilityRole="alert">
-                {formErrors.duration}
+              <Text style={[styles.fieldError, styles.flex1]} accessibilityRole="alert">
+                {formErrors.duration ?? ''}
               </Text>
-            ) : null}
+            </View>
+          )}
+
+          {/* Pace card */}
+          <View style={styles.paceCard}>
+            <View style={styles.paceLeft}>
+              <View style={styles.cardLabelRow}>
+                <MaterialIcons name="speed" size={16} color={colors.primary} />
+                <Text style={styles.paceLabelText}>Pace calculado</Text>
+              </View>
+              <Text
+                style={[styles.paceValue, !livePace && styles.paceValueEmpty]}
+                accessibilityLabel={livePace ? `Pace: ${livePace}` : 'Informe distância e tempo para calcular o pace'}
+              >
+                {livePace ?? '--:--/km'}
+              </Text>
+            </View>
+            <MaterialIcons
+              name="bolt"
+              size={120}
+              color={colors.primary}
+              style={styles.paceBolt}
+            />
           </View>
 
-          {/* Live pace display */}
-          <View style={styles.paceBox}>
-            <Text style={styles.paceLabel}>Pace calculado</Text>
-            <Text
-              style={[styles.paceValue, !livePace && styles.paceValueEmpty]}
-              accessibilityLabel={
-                livePace ? `Pace: ${livePace}` : 'Informe distancia e tempo para calcular o pace'
-              }
-            >
-              {livePace ?? '---'}
-            </Text>
-          </View>
-
-          {/* Date */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>
-              Data (YYYY-MM-DD) <Text style={styles.required}>*</Text>
-            </Text>
+          {/* Date card */}
+          <View style={[styles.card, formErrors.activityDate ? styles.cardError : null]}>
+            <View style={styles.cardLabelRow}>
+              <MaterialIcons name="calendar-today" size={16} color={colors.onSurfaceVariant} />
+              <Text style={styles.cardLabel}>Data da Atividade</Text>
+            </View>
             <TextInput
-              style={[
-                styles.input,
-                formErrors.activityDate ? styles.inputError : null,
-              ]}
+              style={styles.cardDateInput}
               value={activityDate}
-              onChangeText={(v) => {
-                setActivityDate(v);
-                clearFieldError('activityDate');
-              }}
-              placeholder="Ex: 2024-05-20"
-              placeholderTextColor="#B0BEC5"
+              onChangeText={(v) => { setActivityDate(formatDate(v)); clearFieldError('activityDate'); }}
+              placeholder="AAAA-MM-DD"
+              placeholderTextColor={colors.outlineVariant}
               keyboardType="numbers-and-punctuation"
-              returnKeyType="next"
               maxLength={10}
-              accessible
-              accessibilityLabel="Data da atividade no formato YYYY-MM-DD"
               editable={!isSubmitting}
+              accessibilityLabel="Data da atividade"
             />
             {formErrors.activityDate ? (
-              <Text style={styles.fieldError} accessibilityRole="alert">
-                {formErrors.activityDate}
-              </Text>
+              <Text style={styles.fieldError} accessibilityRole="alert">{formErrors.activityDate}</Text>
             ) : null}
           </View>
 
-          {/* Notes */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Observacoes (opcional)</Text>
+          {/* Notes card */}
+          <View style={styles.card}>
+            <View style={styles.cardLabelRow}>
+              <MaterialIcons name="notes" size={16} color={colors.onSurfaceVariant} />
+              <Text style={styles.cardLabel}>Observações</Text>
+            </View>
             <TextInput
-              style={[styles.input, styles.inputMultiline]}
+              style={styles.cardNotesInput}
               value={notes}
               onChangeText={setNotes}
-              placeholder="Ex: Treino de intervalos no parque"
-              placeholderTextColor="#B0BEC5"
+              placeholder="Como foi sua corrida hoje?"
+              placeholderTextColor={colors.outlineVariant}
               multiline
               numberOfLines={3}
-              returnKeyType="done"
               maxLength={500}
-              accessible
-              accessibilityLabel="Observacoes opcionais sobre a atividade"
+              textAlignVertical="top"
               editable={!isSubmitting}
+              accessibilityLabel="Observações sobre a atividade"
             />
+          </View>
+
+          {/* Motivational banner */}
+          <View style={styles.banner}>
+            <Image
+              source={{ uri: BANNER_IMAGE_URI }}
+              style={StyleSheet.absoluteFill}
+              resizeMode="cover"
+              accessibilityLabel="Corredor motivacional"
+            />
+            <View style={styles.bannerOverlay} />
+            <View style={styles.bannerText}>
+              <Text style={styles.bannerTitle}>Pronto para o próximo?</Text>
+              <Text style={styles.bannerSubtitle}>Cada quilômetro conta para o seu progresso.</Text>
+            </View>
           </View>
 
           {submitError ? (
-            <Text
-              style={styles.submitError}
-              accessibilityRole="alert"
-              accessibilityLiveRegion="polite"
-            >
+            <Text style={styles.submitError} accessibilityRole="alert" accessibilityLiveRegion="polite">
               {submitError}
             </Text>
           ) : null}
         </ScrollView>
 
-        {/* Action */}
         <View style={styles.actionBlock}>
           <Pressable
             style={({ pressed }) => [
@@ -278,163 +287,227 @@ export function RegisterActivityScreen({
             accessibilityState={{ busy: isSubmitting }}
           >
             {isSubmitting ? (
-              <ActivityIndicator
-                size="small"
-                color="#FFFFFF"
-                accessibilityLabel="Salvando atividade"
-              />
+              <ActivityIndicator size="small" color={colors.onPrimary} accessibilityLabel="Salvando atividade" />
             ) : (
-              <Text style={styles.saveButtonText}>Salvar Atividade</Text>
+              <>
+                <Text style={styles.saveButtonText}>Salvar Atividade</Text>
+                <MaterialIcons name="check-circle" size={20} color={colors.onPrimary} />
+              </>
             )}
           </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
+const CARD_SHADOW = {
+  shadowColor: '#10233B',
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.06,
+  shadowRadius: 12,
+  elevation: 1,
+} as const;
+
 const styles = StyleSheet.create({
-  safeArea: {
+  root: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
   },
   flex: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8EDF5',
-    backgroundColor: '#F8FAFF',
-  },
-  backButton: {
-    minWidth: 48,
-    minHeight: 48,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  backText: {
-    fontSize: 28,
-    color: '#0D47A1',
-    fontWeight: '400',
-    lineHeight: 32,
-  },
-  headerTitle: {
+  flex1: {
     flex: 1,
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0D47A1',
-    letterSpacing: 0.3,
-  },
-  headerSpacer: {
-    minWidth: 48,
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingTop: 20,
     paddingBottom: 16,
+    gap: 12,
   },
-  fieldGroup: {
-    marginBottom: 20,
+  // Cards
+  card: {
+    backgroundColor: colors.surfaceContainerLowest,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(195, 198, 215, 0.3)',
+    padding: 16,
+    gap: 8,
+    ...CARD_SHADOW,
   },
-  fieldLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#546E7A',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 8,
-  },
-  required: {
-    color: '#D32F2F',
-  },
-  input: {
-    height: 50,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
+  cardError: {
+    borderColor: colors.error,
     borderWidth: 1.5,
-    borderColor: '#CFD8DC',
-    paddingHorizontal: 14,
-    fontSize: 15,
-    color: '#263238',
   },
-  inputMultiline: {
-    height: 88,
-    paddingTop: 12,
-    textAlignVertical: 'top',
-  },
-  inputError: {
-    borderColor: '#D32F2F',
-  },
-  fieldError: {
-    fontSize: 12,
-    color: '#D32F2F',
-    marginTop: 4,
-  },
-  paceBox: {
-    backgroundColor: '#E8F5E9',
-    borderRadius: 10,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginBottom: 20,
+  cardLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 4,
   },
-  paceLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#2E7D32',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  cardLabel: {
+    color: colors.onSurfaceVariant,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12,
+    letterSpacing: 0.05,
+  },
+  cardValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 4,
+  },
+  cardInput: {
+    color: colors.onSurface,
+    fontFamily: fonts.displayBold,
+    fontSize: 24,
+    lineHeight: 32,
+    padding: 0,
+    flex: 1,
+  },
+  cardUnit: {
+    color: colors.onSurfaceVariant,
+    fontFamily: fonts.bodySemiBold,
+    fontSize: 14,
+    letterSpacing: 0.02,
+  },
+  cardDateInput: {
+    color: colors.onSurface,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 18,
+    lineHeight: 28,
+    padding: 0,
+  },
+  cardNotesInput: {
+    color: colors.onSurface,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 16,
+    lineHeight: 24,
+    minHeight: 72,
+    padding: 0,
+  },
+  bentoRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  bentoErrorRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 4,
+    marginTop: -4,
+  },
+  fieldError: {
+    color: colors.error,
+    fontFamily: fonts.bodyRegular,
+    fontSize: 12,
+  },
+  // Pace card
+  paceCard: {
+    backgroundColor: 'rgba(219, 225, 255, 0.3)',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(219, 225, 255, 0.6)',
+    padding: 16,
+    gap: 8,
+    overflow: 'hidden',
+    ...CARD_SHADOW,
+  },
+  paceLeft: {
+    gap: 4,
+    zIndex: 1,
+  },
+  paceLabelText: {
+    color: colors.primary,
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12,
+    letterSpacing: 0.05,
   },
   paceValue: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#2E7D32',
+    color: colors.primary,
+    fontFamily: fonts.displayBold,
+    fontSize: 32,
+    lineHeight: 40,
+    letterSpacing: -0.01 * 32,
   },
   paceValueEmpty: {
-    color: '#A5D6A7',
+    color: colors.primaryFixedDim,
+  },
+  paceBolt: {
+    position: 'absolute',
+    right: -20,
+    bottom: -20,
+    opacity: 0.10,
+  },
+  // Motivational banner
+  banner: {
+    borderRadius: 16,
+    height: 128,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  bannerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 80, 215, 0.52)',
+  },
+  bannerText: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    right: 16,
+  },
+  bannerTitle: {
+    color: '#FFFFFF',
+    fontFamily: fonts.displaySemiBold,
+    fontSize: 18,
+    lineHeight: 28,
+  },
+  bannerSubtitle: {
+    color: 'rgba(255, 255, 255, 0.88)',
+    fontFamily: fonts.bodyMedium,
+    fontSize: 12,
+    lineHeight: 16,
   },
   submitError: {
+    color: colors.error,
+    fontFamily: fonts.bodyRegular,
     fontSize: 14,
-    color: '#D32F2F',
-    textAlign: 'center',
-    marginTop: 8,
     lineHeight: 20,
+    textAlign: 'center',
   },
+  // Action
   actionBlock: {
-    paddingHorizontal: 24,
+    backgroundColor: colors.background,
     paddingBottom: 32,
-    paddingTop: 16,
-    backgroundColor: '#F8FAFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E8EDF5',
+    paddingHorizontal: 20,
+    paddingTop: 12,
   },
   saveButton: {
-    height: 52,
-    backgroundColor: '#0D47A1',
-    borderRadius: 12,
     alignItems: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: 28,
+    elevation: 4,
+    flexDirection: 'row',
+    gap: 10,
+    height: 56,
     justifyContent: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.30,
+    shadowRadius: 24,
   },
   saveButtonDisabled: {
     opacity: 0.5,
   },
   saveButtonPressed: {
-    backgroundColor: '#0A3880',
+    opacity: 0.85,
+    transform: [{ scale: 0.98 }],
   },
   saveButtonText: {
+    color: colors.onPrimary,
+    fontFamily: fonts.bodySemiBold,
     fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: 0.25,
+    letterSpacing: 0.02,
   },
 });

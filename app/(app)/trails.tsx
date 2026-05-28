@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getSession } from '../../src/services/sessionManager';
 import { TrailScreen } from '../../src/features/trail/screens/TrailScreen';
+import { colors } from '../../src/theme/colors';
 
 type PageState = 'loading' | 'ready' | 'unauthenticated';
 
@@ -42,7 +43,7 @@ export default function TrailsPage() {
       <View style={styles.loadingContainer}>
         <ActivityIndicator
           size="large"
-          color="#0D47A1"
+          color={colors.primary}
           accessibilityLabel="Carregando trilha"
         />
       </View>
@@ -55,7 +56,7 @@ export default function TrailsPage() {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#F8FAFF',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },

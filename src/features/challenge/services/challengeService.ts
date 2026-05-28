@@ -10,6 +10,8 @@ import type {
   RegisterCheckInRequest,
   ChallengeDetailApiResponse,
   ChallengeDetail,
+  ChallengeHistoryPage,
+  ChallengeHistoryPageApiResponse,
   FriendChallenge,
   FriendChallengeApiResponse,
   IndividualChallenge,
@@ -524,5 +526,24 @@ export const friendChallengeService = {
 
   async rejectCheckIn(token: string, challengeId: string, checkInId: string): Promise<void> {
     await rejectCheckIn(token, challengeId, checkInId);
+  },
+
+  async history(token: string, page: number, size: number): Promise<ChallengeHistoryPage> {
+    let response: Response;
+    try {
+      response = await fetch(
+        `${API_BASE_URL}/friend-challenges/history?page=${page}&size=${size}`,
+        { method: 'GET', headers: authHeaders(token) }
+      );
+    } catch {
+      throw new ChallengeServiceError('Nao foi possivel conectar ao servidor. Verifique sua conexao.');
+    }
+    const data = await handleResponse<ChallengeHistoryPageApiResponse>(response);
+    return {
+      items: data.content.map(mapFriendChallenge),
+      page: data.page,
+      totalElements: data.total_elements,
+      hasNext: data.has_next,
+    };
   },
 };

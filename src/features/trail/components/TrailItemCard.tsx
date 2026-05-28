@@ -67,11 +67,6 @@ export function TrailItemCard({ item }: TrailItemCardProps) {
             )}
           </View>
 
-          {/* XP reward */}
-          <Text style={[styles.xpLabel, isLocked && styles.xpLabelLocked]}>
-            +{item.xpReward} XP
-          </Text>
-
           {/* Inline progress bar for current item */}
           {isCurrent && (
             <View style={styles.itemProgressContainer}>
@@ -232,16 +227,6 @@ const styles = StyleSheet.create({
     color: colors.onPrimaryContainer,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-  },
-
-  xpLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.onSurfaceVariant,
-    marginBottom: 4,
-  },
-  xpLabelLocked: {
-    color: colors.outlineVariant,
   },
 
   itemProgressContainer: {

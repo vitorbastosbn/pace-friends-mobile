@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import type { ChallengeStatus, FriendChallenge } from '../types/challenge.types';
-import { formatDate } from '../mappers/challengeMapper';
 import { colors } from '../../../theme/colors';
 
 interface FriendChallengeCardProps {
@@ -11,102 +11,165 @@ const STATUS_LABEL: Record<ChallengeStatus, string> = {
   ACTIVE: 'Ativo',
   AUDIT: 'Em auditoria',
   FINISHED: 'Finalizado',
-  DELETED: 'Excluido',
-  COMPLETED: 'Concluido',
+  DELETED: 'Excluído',
+  COMPLETED: 'Concluído',
   CANCELLED: 'Cancelado',
 };
 
-const STATUS_TONE: Record<ChallengeStatus, { backgroundColor: string; color: string }> = {
-  ACTIVE: { backgroundColor: colors.secondaryContainer, color: colors.onSecondaryContainer },
-  AUDIT: { backgroundColor: colors.tertiaryFixed, color: colors.tertiary },
-  FINISHED: { backgroundColor: colors.surfaceContainerHigh, color: colors.onSurfaceVariant },
-  DELETED: { backgroundColor: colors.errorContainer, color: colors.error },
-  COMPLETED: { backgroundColor: colors.secondaryContainer, color: colors.onSecondaryContainer },
-  CANCELLED: { backgroundColor: colors.surfaceContainerHigh, color: colors.onSurfaceVariant },
+const STATUS_TONE: Record<ChallengeStatus, { bg: string; text: string }> = {
+  ACTIVE: { bg: colors.secondaryContainer, text: colors.onSecondaryContainer },
+  AUDIT: { bg: colors.tertiaryFixed, text: colors.tertiary },
+  FINISHED: { bg: colors.surfaceContainerHigh, text: colors.onSurfaceVariant },
+  DELETED: { bg: colors.errorContainer, text: colors.error },
+  COMPLETED: { bg: colors.secondaryContainer, text: colors.onSecondaryContainer },
+  CANCELLED: { bg: colors.surfaceContainerHigh, text: colors.onSurfaceVariant },
 };
 
+const RANK_ICON_COLOR: Record<number, string> = {
+  1: '#D0A600',
+  2: '#9E9E9E',
+  3: '#CD7F32',
+};
+
+function RankLabel({ position }: { position: number | null }) {
+  if (position === null) {
+    return <Text style={styles.metricValue}>—</Text>;
+  }
+  const iconColor = RANK_ICON_COLOR[position] ?? colors.onSurfaceVariant;
+  return (
+    <View style={styles.rankRow}>
+      {position <= 3 && (
+        <MaterialIcons name="workspace-premium" size={20} color={iconColor} />
+      )}
+      <Text style={styles.metricValue}>{position}º lugar</Text>
+    </View>
+  );
+}
+
+function ParticipantDots({ count }: { count: number }) {
+  const visible = Math.min(count, 3);
+  const extra = count - visible;
+  const dotColors = [colors.primaryContainer, colors.secondaryContainer, colors.tertiaryFixed];
+
+  return (
+    <View style={styles.avatarStack}>
+      {Array.from({ length: visible }).map((_, i) => (
+        <View
+          key={i}
+          style={[
+            styles.avatarDot,
+            { backgroundColor: dotColors[i % dotColors.length], marginLeft: i === 0 ? 0 : -8 },
+          ]}
+        />
+      ))}
+      {extra > 0 && (
+        <View style={[styles.avatarDot, styles.avatarDotExtra, { marginLeft: -8 }]}>
+          <Text style={styles.avatarDotExtraText}>+{extra}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
 export function FriendChallengeCard({ data }: FriendChallengeCardProps) {
-  const rankLabel = data.userRankPosition == null ? 'Sem posicao' : `${data.userRankPosition}º lugar`;
   const tone = STATUS_TONE[data.status];
 
   return (
     <View style={styles.card}>
-      <View style={styles.header}>
-        <View style={styles.titleGroup}>
-          <Text selectable style={styles.type}>Entre amigos</Text>
-          <Text selectable numberOfLines={2} style={styles.title}>{data.title}</Text>
+      {/* Status badge absolute */}
+      <View style={styles.badge}>
+        <Text style={[styles.badgeText, { backgroundColor: tone.bg, color: tone.text }]}>
+          {STATUS_LABEL[data.status]}
+        </Text>
+      </View>
+
+      {/* Type row + title */}
+      <View style={styles.topSection}>
+        <View style={styles.typeRow}>
+          <MaterialIcons name="group" size={14} color={colors.primary} />
+          <Text style={styles.typeText}>ENTRE AMIGOS</Text>
         </View>
-        <View style={[styles.badge, { backgroundColor: tone.backgroundColor }]}>
-          <Text selectable style={[styles.badgeText, { color: tone.color }]}>
-            {STATUS_LABEL[data.status]}
+        <Text style={styles.title} numberOfLines={2}>
+          {data.title}
+        </Text>
+      </View>
+
+      {/* Stats grid */}
+      <View style={styles.metricsGrid}>
+        <View style={styles.metricBox}>
+          <Text style={styles.metricLabel}>Posição</Text>
+          <RankLabel position={data.userRankPosition} />
+        </View>
+        <View style={styles.metricBox}>
+          <Text style={styles.metricLabel}>Participantes</Text>
+          <Text style={styles.metricValue}>
+            {data.participantCount}/{data.maxParticipants}
           </Text>
         </View>
       </View>
 
-      <View style={styles.metricsGrid}>
-        <View style={styles.metricBox}>
-          <Text style={styles.metricLabel}>Posicao</Text>
-          <Text style={styles.metricValue}>{rankLabel}</Text>
-        </View>
-        <View style={styles.metricBox}>
-          <Text style={styles.metricLabel}>Participantes</Text>
-          <Text style={styles.metricValue}>{data.participantCount}</Text>
+      {/* Footer: avatar dots + ver ranking */}
+      <View style={styles.footer}>
+        <ParticipantDots count={data.participantCount} />
+        <View style={styles.rankingLink}>
+          <Text style={styles.rankingLinkText}>Ver Ranking</Text>
+          <MaterialIcons name="chevron-right" size={18} color={colors.primary} />
         </View>
       </View>
-
-      <Text selectable style={styles.period}>
-        {formatDate(data.startDate)} — {formatDate(data.endDate)}
-      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    gap: 16,
-    padding: 24,
     backgroundColor: colors.surfaceContainerLowest,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(195, 198, 215, 0.3)',
-    shadowColor: colors.onSurface,
+    padding: 24,
+    shadowColor: '#10233B',
     shadowOpacity: 0.1,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  titleGroup: {
-    flex: 1,
-    gap: 4,
-  },
-  type: {
-    color: colors.primary,
-    fontSize: 12,
-    fontWeight: '500',
-    textTransform: 'uppercase',
-    letterSpacing: 0.7,
-  },
-  title: {
-    color: colors.onSurface,
-    fontSize: 20,
-    fontWeight: '600',
-    lineHeight: 28,
+    borderWidth: 1,
+    borderColor: 'rgba(195, 198, 215, 0.3)',
+    gap: 16,
   },
   badge: {
-    borderRadius: 9999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    flexShrink: 0,
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 1,
   },
   badgeText: {
     fontSize: 12,
     fontWeight: '500',
     letterSpacing: 0.05,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 9999,
+    overflow: 'hidden',
+  },
+  topSection: {
+    gap: 4,
+    paddingRight: 72,
+  },
+  typeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  typeText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: colors.primary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.7,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.onSurface,
+    lineHeight: 28,
   },
   metricsGrid: {
     flexDirection: 'row',
@@ -116,7 +179,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.surfaceContainerLow,
     borderRadius: 8,
-    padding: 16,
+    padding: 12,
     alignItems: 'center',
     gap: 4,
   },
@@ -132,9 +195,46 @@ const styles = StyleSheet.create({
     color: colors.onSurface,
     lineHeight: 28,
   },
-  period: {
+  rankRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  avatarStack: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatarDot: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: colors.surfaceContainerLowest,
+  },
+  avatarDotExtra: {
+    backgroundColor: colors.surfaceContainerHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarDotExtraText: {
+    fontSize: 11,
+    fontWeight: '700',
     color: colors.onSurfaceVariant,
-    fontSize: 12,
-    fontWeight: '400',
+  },
+  rankingLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  rankingLinkText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    letterSpacing: 0.02,
   },
 });

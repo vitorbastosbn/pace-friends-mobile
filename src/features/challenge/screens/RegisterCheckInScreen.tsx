@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -136,23 +135,7 @@ export function RegisterCheckInScreen({ token, challengeId }: RegisterCheckInScr
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          style={styles.backButton}
-          accessibilityLabel="Voltar"
-          accessibilityRole="button"
-          hitSlop={8}
-        >
-          <Text style={styles.backText}>{'‹'}</Text>
-        </Pressable>
-        <Text style={styles.headerTitle} accessibilityRole="header">
-          Registrar Check-in
-        </Text>
-        <View style={styles.headerSpacer} />
-      </View>
-
+    <View style={styles.safeArea}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -315,33 +298,13 @@ export function RegisterCheckInScreen({ token, challengeId }: RegisterCheckInScr
           </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F8FAFF' },
   flex: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8EDF5',
-    backgroundColor: '#F8FAFF',
-  },
-  backButton: { minWidth: 48, minHeight: 48, alignItems: 'flex-start', justifyContent: 'center' },
-  backText: { fontSize: 28, color: '#16a766', fontWeight: '400', lineHeight: 32 },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0D47A1',
-    letterSpacing: 0.3,
-  },
-  headerSpacer: { minWidth: 48 },
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 16 },
   successBanner: {

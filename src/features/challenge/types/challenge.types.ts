@@ -150,6 +150,7 @@ export interface FriendChallengeApiResponse {
   start_date: string;
   end_date: string;
   participant_count: number;
+  max_participants: number;
   user_role: ParticipantRole;
   user_rank_position: number | null;
 }
@@ -161,8 +162,24 @@ export interface FriendChallenge {
   startDate: string;
   endDate: string;
   participantCount: number;
+  maxParticipants: number;
   userRole: ParticipantRole;
   userRankPosition: number | null;
+}
+
+export interface ChallengeHistoryPageApiResponse {
+  content: FriendChallengeApiResponse[];
+  page: number;
+  size: number;
+  total_elements: number;
+  has_next: boolean;
+}
+
+export interface ChallengeHistoryPage {
+  items: FriendChallenge[];
+  page: number;
+  totalElements: number;
+  hasNext: boolean;
 }
 
 export interface CheckInApiResponse {

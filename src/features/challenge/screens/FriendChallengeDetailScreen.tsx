@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useNavigation, useRouter } from 'expo-router';
 import { CheckInList } from '../components/CheckInList';
 import { RankingList } from '../components/RankingList';
 import { ChallengeServiceError, friendChallengeService } from '../services/challengeService';
@@ -56,6 +56,7 @@ function DetailSkeleton() {
 
 export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetailScreenProps) {
   const router = useRouter();
+  const navigation = useNavigation();
   const [detail, setDetail] = useState<ChallengeDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +83,21 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
       void load();
     }, [load])
   );
+
+  useLayoutEffect(() => {
+    if (!detail) return;
+    const badge = STATUS_BADGE[detail.status];
+    navigation.setOptions({
+      title: detail.title,
+      headerRight: () => (
+        <View style={[friendHeaderStyles.badge, { backgroundColor: badge.backgroundColor }]}>
+          <Text style={[friendHeaderStyles.badgeText, { color: badge.color }]}>
+            {STATUS_LABEL[detail.status]}
+          </Text>
+        </View>
+      ),
+    });
+  }, [navigation, detail]);
 
   async function performExit(action: 'leave' | 'delete') {
     setIsActing(true);
@@ -171,24 +187,6 @@ export function FriendChallengeDetailScreen({ id, token }: FriendChallengeDetail
       contentInsetAdjustmentBehavior="automatic"
       style={styles.screen}
     >
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => router.back()}
-          style={({ pressed }) => [styles.backButton, pressed ? styles.pressed : null]}
-          hitSlop={8}
-        >
-          <Text style={styles.backText}>{'‹'}</Text>
-        </Pressable>
-        <Text style={styles.headerTitle} numberOfLines={1}>{detail.title}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: STATUS_BADGE[detail.status].backgroundColor }]}>
-          <Text style={[styles.statusLabel, { color: STATUS_BADGE[detail.status].color }]}>
-            {STATUS_LABEL[detail.status]}
-          </Text>
-        </View>
-      </View>
-
       {/* Hero card */}
       <View style={styles.heroCard}>
         <View style={styles.heroGrid}>
@@ -293,43 +291,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 40,
     paddingHorizontal: 20,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 9999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  backText: {
-    fontSize: 28,
-    color: colors.primary,
-    fontWeight: '400',
-    lineHeight: 32,
-  },
-  headerTitle: {
-    flex: 1,
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.primary,
-    lineHeight: 32,
-  },
-  statusBadge: {
-    borderRadius: 9999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    flexShrink: 0,
-  },
-  statusLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-    letterSpacing: 0.05,
   },
   heroCard: {
     backgroundColor: colors.surfaceContainerLowest,
@@ -493,5 +454,20 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.76,
+  },
+});
+
+const friendHeaderStyles = StyleSheet.create({
+  badge: {
+    borderRadius: 9999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    marginRight: 8,
+    alignSelf: 'center',
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '500',
+    letterSpacing: 0.05,
   },
 });

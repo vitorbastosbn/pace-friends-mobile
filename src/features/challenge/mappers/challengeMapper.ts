@@ -98,6 +98,7 @@ export function mapFriendChallenge(response: FriendChallengeApiResponse): Friend
     startDate: response.start_date,
     endDate: response.end_date,
     participantCount: response.participant_count,
+    maxParticipants: response.max_participants,
     userRole: response.user_role,
     userRankPosition: response.user_rank_position,
   };

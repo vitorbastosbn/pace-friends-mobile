@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useNavigation } from 'expo-router';
 import { StreakCard, StreakCardError } from '../components/StreakCard';
 import { XpDisplay } from '../components/XpDisplay';
 import { useStreak } from '../hooks/useStreak';
@@ -25,7 +25,7 @@ interface StreakScreenProps {
 }
 
 export function StreakScreen({ token }: StreakScreenProps) {
-  const router = useRouter();
+  const navigation = useNavigation();
   const { streak, isLoading, error, reload } = useStreak(token);
   const [showFrequencyModal, setShowFrequencyModal] = useState(false);
   const [badgeCount, setBadgeCount] = useState<number | null>(null);
@@ -35,6 +35,21 @@ export function StreakScreen({ token }: StreakScreenProps) {
       .then((achievements) => setBadgeCount(achievements.filter((a) => a.unlocked).length))
       .catch(() => {});
   }, [token]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          onPress={() => streak && setShowFrequencyModal(true)}
+          style={styles.iconButton}
+          accessibilityLabel="Configurar frequência"
+          accessibilityRole="button"
+        >
+          <MaterialIcons name="settings" size={24} color={colors.primary} />
+        </Pressable>
+      ),
+    });
+  }, [navigation, streak]);
 
   function handleFrequencySaved(response: UpdateFrequencyResponse) {
     const date = new Date(`${response.effectiveFrom}T00:00:00`);
@@ -49,30 +64,6 @@ export function StreakScreen({ token }: StreakScreenProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Pressable
-            onPress={() => router.back()}
-            style={({ pressed }) => [styles.iconButton, pressed && styles.iconButtonPressed]}
-            accessibilityLabel="Voltar"
-            accessibilityRole="button"
-          >
-            <MaterialIcons name="arrow-back" size={24} color={colors.onSurface} />
-          </Pressable>
-          <Text style={styles.headerTitle} accessibilityRole="header">
-            Ofensiva
-          </Text>
-        </View>
-        <Pressable
-          onPress={() => streak && setShowFrequencyModal(true)}
-          style={({ pressed }) => [styles.iconButton, pressed && styles.iconButtonPressed]}
-          accessibilityLabel="Configurar frequência"
-          accessibilityRole="button"
-        >
-          <MaterialIcons name="settings" size={24} color={colors.onSurface} />
-        </Pressable>
-      </View>
-
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {isLoading && (
           <View style={styles.loadingContainer}>
@@ -133,25 +124,6 @@ const styles = StyleSheet.create({
   safeArea: {
     backgroundColor: colors.background,
     flex: 1,
-  },
-  header: {
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    flexDirection: 'row',
-    height: 64,
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-  },
-  headerLeft: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 4,
-  },
-  headerTitle: {
-    color: colors.onSurface,
-    fontFamily: fonts.displayBold,
-    fontSize: 20,
-    lineHeight: 28,
   },
   iconButton: {
     borderRadius: 20,
